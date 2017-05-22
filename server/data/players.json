@@ -1,0 +1,14 @@
+{
+    "players": [{
+        "id": 0,
+        "name": "John Doe",
+        "currentLevel": "Tutorial",
+        "totalCompletion": "33%"
+    },
+    {
+        "id": 1,
+        "name": "Will Smith",
+        "currentLevel": "Final",
+        "totalCompletion": "90%"
+    }]
+}

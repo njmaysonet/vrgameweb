@@ -5,7 +5,7 @@ var http = require('http');
 var bodyParser = require('body-parser');
 
 //Variables
-var port = process.env.PORT || '3005';
+var port = process.env.PORT || '3000';
 
 //Express setup
 var app = express();
@@ -16,6 +16,13 @@ var api = require('./server/routes/api');
 //Parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+//Allow Cross Origin
+app.use(function(req,res,next){
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+})
+
 //Routes
 app.use('/api', api)
 

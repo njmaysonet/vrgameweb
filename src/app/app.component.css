@@ -1,0 +1,13 @@
+.navbar{
+    padding: 20px;
+    background: lightblue;
+    border: 1px solid #607D8B
+}
+.navbutton{
+    margin-left: 30px;
+    align-content: center;
+}
+.sitetitle{
+    font-size: 24px;
+    margin-left: auto;
+}

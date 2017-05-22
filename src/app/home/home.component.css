@@ -1,0 +1,40 @@
+.wcard{
+    margin: auto;
+    padding: 0px;
+}
+.welcome{
+    padding: 40px;
+    text-align: center;
+}
+.pcard{
+    margin: 2em;
+    padding: 2em;
+    font-size: 1.2em;
+}
+.wrap{
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    width: 100%;
+}
+.rightColumn{
+    flex-grow: 1;
+}
+.leftColumn{
+    min-width: 100px;
+    flex-grow: 0;
+}
+.viveCard{
+    padding: 4em;
+    width: 50%;
+    margin: 3em 4em 3em 4em;
+    align-content: center;
+    align-items: center;
+}
+.viveImage{
+    width: auto;
+    height: auto;
+    max-width: 300px;
+    max-height: 300px;
+    align-items: center;
+}
