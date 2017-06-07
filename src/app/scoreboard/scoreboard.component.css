@@ -1,3 +1,14 @@
 .scoreboardContainer{
     margin: auto;
 }
+.header-image{
+    background-image: url('../../../assets/user-male-silhouette.jpg');
+    background-size: cover;
+}
+.container{
+    margin: 100px auto;
+}
+h3
+{
+    margin: 1em 0;
+}

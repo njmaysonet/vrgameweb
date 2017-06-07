@@ -5,9 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { MaterialModule} from '@angular/material';
 import { CommonModule } from '@angular/common';
+import { FlexLayoutModule} from '@angular/flex-layout';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 //ngx-bootstrap modules
-import { AlertModule } from 'ngx-bootstrap';
+//import { AlertModule } from 'ngx-bootstrap';
 //import { DataTableModule } from 'angular-2-data-table';
 
 //Need hammerjs as dependency for some aspects of angular-material
@@ -37,9 +39,11 @@ import { ScoreboardComponent} from './scoreboard/scoreboard.component';
     MaterialModule,
     AppRoutingModule,
     AppMaterialModule,
-    AlertModule.forRoot(),
+    //AlertModule.forRoot(),
     CommonModule,
     //DataTableModule
+    FlexLayoutModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

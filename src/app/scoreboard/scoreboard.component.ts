@@ -9,5 +9,4 @@ import { AppMaterialModule }  from    '../app-material.module';
 })
 
 export class ScoreboardComponent {
-
 }

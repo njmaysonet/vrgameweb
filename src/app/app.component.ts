@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 import {AppMaterialModule} from './app-material.module';
+import {MdMenuModule} from '@angular/material';
 
 @Component({
   selector: 'app-root',

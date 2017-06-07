@@ -1,6 +1,15 @@
 <div class="mat-app-background">
   <nav>
     <md-toolbar class="dark-primary-color">
+      <button md-button [mdMenuTriggerFor]="menu" class="default-primary-color text-primary-color navbutton">
+        <i class="material-icons">reorder</i>
+      </button>
+      <md-menu #menu="mdMenu" yPosition="below" [overlapTrigger]="false">
+        <button md-menu-item>
+          <i class="material-icons">person</i>
+          Login
+        </button>
+      </md-menu>
       <button md-button class="default-primary-color text-primary-color navbutton" routerLink="/home" routerLinkActive="active">
         <i class="material-icons">home</i>
       </button>

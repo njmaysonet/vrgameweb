@@ -10,31 +10,30 @@
     margin: 2em;
     padding: 2em;
     font-size: 1.2em;
+    max-height: 180px;
+    max-width: 500px;
 }
-.wrap{
-    display: -ms-flex;
-    display: -webkit-flex;
-    display: flex;
-    width: 100%;
+.container{
+    padding: 0;
 }
-.rightColumn{
-    flex-grow: 1;
-}
-.leftColumn{
-    min-width: 100px;
-    flex-grow: 0;
+.section-container
+{
+    margin: 50px 0;
+    background-color: #3a4f63;
 }
 .viveCard{
-    padding: 4em;
-    width: 50%;
-    margin: 3em 4em 3em 4em;
-    align-content: center;
-    align-items: center;
+    margin: 1em;
 }
-.viveImage{
-    width: auto;
-    height: auto;
-    max-width: 300px;
+.image{
+    max-width: 400px;
+    padding: 10px;
     max-height: 300px;
-    align-items: center;
+}
+.footer{
+    text-align: center;
+    padding: 40px;
+}
+.fcard{
+    margin: auto;
+    padding: 0;
 }

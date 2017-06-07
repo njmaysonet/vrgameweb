@@ -1,18 +1,66 @@
-<div>
-    <md-sidenav-container>
-        <md-sidenav #sidenav mode="side">
-            <md-toolbar>
-                <span>First</span>
-            <md-toolbar-row>
-                <span>Second</span>
-            </md-toolbar-row>
-            <md-toolbar-row>
-                <span>Third</span>
-            </md-toolbar-row>
-            </md-toolbar>
-        </md-sidenav>
-    </md-sidenav-container>
+<div class="container">
+    <div fxLayout="column" fxAlign="none none">
+        <md-card>
+            <div md-card-avatar class="header-image"></div>
+            <md-card-title>User 1</md-card-title>
+            <md-card-subtitle>Beginner</md-card-subtitle>
+            <md-card-content>
+                <h3>Bio:</h3>
+                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                    nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
+                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                    Excepteur sint occaecat cupidatat non proident, 
+                    sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
+                <h3> Scenario 1 Progress: 50% </h3>
+                <md-progress-bar mode="determinate" [value]="50" [color] = "blue">
+                </md-progress-bar>
+                <h3> Scenario 2 Progress: 25% </h3>
+                <md-progress-bar mode="determinate" [value]="25" [color] = "blue">
+                </md-progress-bar>
+                <h3> Scenario 3 Progress: 10% </h3>
+                <md-progress-bar mode="determinate" [value]="10" [color] = "blue">
+                </md-progress-bar>
+            </md-card-content>
+            <md-card-actions>
+                <button md-button> SHARE </button>
+            </md-card-actions>
+        </md-card>
+    </div>
 </div>
+
+<!-- <div class="container">
+    <div fxLayout="column" fxAlign="none none">
+        <md-card>
+            <div md-card-avatar class="header-image"></div>
+            <md-card-title>User 1</md-card-title>
+            <md-card-subtitle>Beginner</md-card-subtitle>
+            <md-card-content>
+                <h3>Bio:</h3>
+                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                    nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
+                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                    Excepteur sint occaecat cupidatat non proident, 
+                    sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
+                <h3> Scenario 1 Progress: 50% </h3>
+                <md-progress-bar mode="determinate" [value]="50" [color] = "blue">
+                </md-progress-bar>
+                <h3> Scenario 2 Progress: 25% </h3>
+                <md-progress-bar mode="determinate" [value]="25" [color] = "blue">
+                </md-progress-bar>
+                <h3> Scenario 3 Progress: 10% </h3>
+                <md-progress-bar mode="determinate" [value]="10" [color] = "blue">
+                </md-progress-bar>
+            </md-card-content>
+            <md-card-actions>
+                <button md-button> SHARE </button>
+            </md-card-actions>
+        </md-card>
+    </div>
+</div> -->
 <!-- <div class="scoreboardContainer">
     <data-table id="scoreboard-grid"
         headerTitle="Scoreboard"
@@ -30,13 +78,3 @@
         </data-table-column>
     </data-table> 
 </div>-->
-<div>
-    <md-list>
-        <md-list-item>
-            <md-card-title> First </md-card-title>
-            <md-card>
-                First Content
-            </md-card>
-        </md-list-item>
-    </md-list>
-</div>
