@@ -2,10 +2,11 @@ var mysql = require('mysql');
 
 var pool = mysql.createPool({
 	connectionLimit: 1000,
+	//host: "10.171.204.166",
 	host: "localhost",
 	user: "root",
 	password: "Bulb$asaur5m",
-	database: "culturalvrupdate"
+	database: "culturalvrupdate", 
 })
 
 var userTable = ["USERS", "ANSWERS", "USER_RESPONSES", "QUESTIONS", "SCENARIO"];
@@ -70,29 +71,38 @@ exports.getQuery = function getQuery(fields, tables, attributes, values, extraCo
 		}
 	}
 	
-	if(attributes.length != 0)
+	if(attributes.length != values.length)
 	{
-		outQuery += " WHERE ";
-		
-		for(i = 0; i < attributes.length; i++)
+		callback("ERROR: INVALID NUMBER OF ARGUMENTS", "err");
+	}
+	else
+	{
+		if(attributes.length != 0)
 		{
-			if(i != 0)
+			outQuery += " WHERE ";
+			
+			for(i = 0; i < attributes.length; i++)
 			{
-				if(attributes[i-1].valueOf() == attributes[i].valueOf())
+				if(i != 0)
 				{
-					outQuery += " OR ";
+					if(attributes[i-1].valueOf() == attributes[i].valueOf())
+					{
+						outQuery += " OR ";
+					}
+					else
+					{
+						outQuery += " AND ";
+					}
 				}
-				else
-				{
-					outQuery += " AND ";
-				}
-			}
-		
-			outQuery += attributes[i] + " = " + pool.escape(values[i]);
-			//console.log(outQuery);
+			
+				outQuery += attributes[i] + " = " + pool.escape(values[i]);
+				//console.log(outQuery);
 
+			}
 		}
 	}
+	
+	
 	
 	for(i = 0; i < extraCons.length; i++)
 	{
@@ -116,6 +126,7 @@ exports.getQuery = function getQuery(fields, tables, attributes, values, extraCo
 			}
 			else{
 				console.log('err');
+				callback("ERROR: QUERY ERROR", "err");
 			}
 			
 		});
@@ -184,12 +195,13 @@ exports.updateRow = function updateRow(table, setAttributes, setValues, whereAtt
 	pool.getConnection(function(err, connection){	
 
 		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		connection.query(outQuery, function(err, rows, fields){
+		connection.query(outQuery, function(err, result){
 			
 			connection.release();
 			
 			if(!err){
-				callback(JSON.stringify(rows), null);					
+				console.log("Updated " + result.affectedRows + " rows.");
+				callback(JSON.stringify(result), null);					
 			}
 			else{
 				console.log('err');
@@ -307,6 +319,7 @@ exports.insertUser = function insertRow(vals, callback)
 			{
 				connection.release();
 				console.log("There was a duplicate email, err");
+				callback("ERROR: DUPLICATE EMAIL", "err");
 			}
 		});
 		

@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
 router.get('/data', (req, res) => {
 	
 	//dbConn.getQuery(SELECT, FROM, WHERE(FIELDS), WHERE(VALUES), EXTRA(**)))
-	dbConn.getQuery([], ["USERS"], [], [], ["USERNAME","",""], function(val, err){
+	dbConn.getQuery([], ["GOALS"], [], [], ["SCENARIOID","",""], function(val, err){
 		if(err){
 			res.send('err');
 		}
@@ -32,7 +32,7 @@ router.get('/update', (req, res) => {
 
 	//dbConn.updateRow(TABLE, SETLEFTSIDE, SETRIGHTSIDE, WHERELEFTSIDE, WHERERIGHTSIDE))
 	
-	dbConn.updateRow(["GOALS"], ["GOAL"], ["Check into a hotel"], ["GOAL ="], ["goal + !"], function(val, err){
+	dbConn.updateRow(["GOALS"], ["GOAL"], ["Check into a hotel!"], ["GOAL ="], ["Check into a hotel"], function(val, err){
 		if(err){
 			res.send('err');
 		}
