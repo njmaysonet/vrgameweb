@@ -8,13 +8,15 @@ import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from '../home/home.component';
 import {DownloadsComponent} from '../downloads/downloads.component';
 import {ScoreboardComponent} from '../scoreboard/scoreboard.component';
+import {AboutComponent} from '../about/about.component';
 
 //Array containing routing information and directives
 const routes: Routes = [
     {path: '', redirectTo: '/home', pathMatch: 'full'},
     {path: 'home', component: HomeComponent},
     {path: 'downloads', component: DownloadsComponent},
-    {path: 'scoreboard', component: ScoreboardComponent}
+    {path: 'scoreboard', component: ScoreboardComponent},
+    {path: 'about', component: AboutComponent}
 ];
 
 @NgModule({

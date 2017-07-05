@@ -2,13 +2,22 @@
     "players": [{
         "id": 0,
         "name": "John Doe",
+        "title": "Beginner",
         "currentLevel": "Tutorial",
         "totalCompletion": "33%"
     },
     {
         "id": 1,
         "name": "Will Smith",
+        "title": "Frequent Flyer",
         "currentLevel": "Final",
         "totalCompletion": "90%"
+    },
+    {
+        "id": 2,
+        "name": "Robbie Rotten",
+        "title": "Traveler",
+        "currentLevel": "2nd",
+        "totalCompletion": "50%"
     }]
 }

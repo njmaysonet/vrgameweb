@@ -2,7 +2,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpModule, JsonpModule } from '@angular/http';
 import { MaterialModule} from '@angular/material';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule} from '@angular/flex-layout';
@@ -22,6 +22,7 @@ import { AppRoutingModule} from './routes/app-routing.module';
 import { DownloadsComponent} from './downloads/downloads.component';
 import { AppMaterialModule } from './app-material.module';
 import { ScoreboardComponent} from './scoreboard/scoreboard.component';
+import { AboutComponent} from './about/about.component';
 //import { ScoreboardRemote} from './scoreboard/scoreboard.remote';
 
 @NgModule({
@@ -29,13 +30,15 @@ import { ScoreboardComponent} from './scoreboard/scoreboard.component';
     AppComponent,
     HomeComponent,
     DownloadsComponent,
-    ScoreboardComponent
+    ScoreboardComponent,
+    AboutComponent
     //ScoreboardRemote
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
+    JsonpModule,
     MaterialModule,
     AppRoutingModule,
     AppMaterialModule,

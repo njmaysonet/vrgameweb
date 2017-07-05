@@ -7,6 +7,7 @@ router.get('/', (req, res) => {
     res.send('api works');
 });
 
+//To-Do Add Query Functionality
 router.get('/data', (req, res) => {
     res.send(data);
 })
