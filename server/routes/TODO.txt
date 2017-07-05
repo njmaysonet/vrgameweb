@@ -1,0 +1,4 @@
+TODO:
+	- Javascript with server.js
+	- Database err handling/Some form of preventing overload of servers
+	- Routes with the game/any other necessary routes
