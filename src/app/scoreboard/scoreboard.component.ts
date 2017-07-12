@@ -26,12 +26,12 @@ export class ScoreboardComponent implements OnInit {
 
     getPlayers(){
         this.scoreboardService.getPlayers()
-        .subscribe(
-            players => {
-                console.log(this.players);
-                this.players = players;
-            },
-            error => this.errorMessage = <any>error
-            );
+            .subscribe(
+                players => {
+                    this.players = players;
+                    console.log(players);
+                },
+                error => this.errorMessage = <any>error
+                );
     }
 }

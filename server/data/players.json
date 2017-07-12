@@ -4,20 +4,26 @@
         "name": "John Doe",
         "title": "Beginner",
         "currentLevel": "Tutorial",
-        "totalCompletion": "33%"
+        "progress1": "33",
+        "progress2": "0",
+        "progress3": "0"
     },
     {
         "id": 1,
         "name": "Will Smith",
         "title": "Frequent Flyer",
         "currentLevel": "Final",
-        "totalCompletion": "90%"
+        "progress1": "33",
+        "progress2": "0",
+        "progress3": "0"
     },
     {
         "id": 2,
         "name": "Robbie Rotten",
         "title": "Traveler",
         "currentLevel": "2nd",
-        "totalCompletion": "50%"
+        "progress1": "33",
+        "progress2": "0",
+        "progress3": "0"
     }]
 }

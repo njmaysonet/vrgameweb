@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {Http, Response} from '@angular/http';
+import { Http, Response } from '@angular/http';
 
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
@@ -14,32 +14,9 @@ export class ScoreboardService{
     constructor (private http: Http) {}
 
     getPlayers(): Observable<Player[]> {
-        let players$ = this.http
-        .get(this.apiURL)
-        .map(this.mapPlayers);
-        return players$;
-    }
-
-    private extractData(res: Response)
-    {
-        let body = res.json();
-        return body.data || {};
-    }
-
-    private mapPlayers(res:Response): Player[]{
-        return res.json().results.map(this.toPlayer);
-    }
-
-    private toPlayer(r:any): Player{
-        let player = <Player>({
-            id: r.id,
-            name: r.name,
-            title: r.title,
-            currentLevel: r.currentLevel,
-            totalCompletion: r.totalCompletion,
-        });
-        console.log('Parsed player:', player);
-        return player;
+        return this.http.get(this.apiURL)
+            .map((res: Response) => res.json().players)
+            .catch(this.handleError);
     }
 
     private handleError(error: Response | any) {

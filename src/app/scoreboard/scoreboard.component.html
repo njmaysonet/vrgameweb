@@ -1,4 +1,4 @@
-<div class="container">
+<!--<div class="container">
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>
@@ -28,9 +28,13 @@
             </md-card-actions>
         </md-card>
     </div>
+</div> -->
+<div class="container">
+    <div fxLayout="column" fxAlign="none none">
+        <h1> Scoreboard Page </h1>
+    </div>
 </div>
-
-<div class="container" *ngFor="let player of players | async">
+<div class="container" *ngFor="let player of players">
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>

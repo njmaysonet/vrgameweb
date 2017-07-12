@@ -3,5 +3,7 @@ export class Player{
     public name: string;
     public title: string;
     public currentLevel: string;
-    public totalCompletion: string;
+    public progress1: string;
+    public progress2: string;
+    public progress3: string;
 }
