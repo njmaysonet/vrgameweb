@@ -9,325 +9,164 @@ var pool = mysql.createPool({
 	database: "culturalvrupdate", 
 })
 
-var userTable = ["USERS", "ANSWERS", "USER_RESPONSES", "QUESTIONS", "SCENARIO"];
-var scenarioTable = ["SCENARIO", "CULTURE", "GOALS", "LANGUAGES", "QUESTIONS", "ANSWERS"];
-var extraConstraints = [" ORDER BY ", " GROUP BY ", " LIMIT "];
-//exports.userTables = userTable;
 
-exports.getQuery = function getQuery(fields, tables, attributes, values, extraCons, callback)
+exports.queryDB = function queryDB(inQuery, val, callback)
 {
-	var outQuery = "SELECT ";
-	var i;
-	
-	if(fields.length == 0)
-	{
-		outQuery += " * "; 
-	}
-	else
-	{
-		for(i = 0; i < fields.length; i++)
-		{
-			outQuery += fields[i];
-			if(i != fields.length - 1)
-			{
-				outQuery += ", ";
-			}
-		}
-	}
-	
-	var tableArr = [];
-	
-	if(tables.valueOf() == 'userTable')
-	{
-		for(i = 0; i < userTable.length; i++)
-		{
-			tableArr.push(userTable[i]);
-		}
-	}
-	else if(tables.valueOf() == 'scenarioTable')
-	{
-		for(i = 0; i < scenarioTable.length; i++)
-		{
-			tableArr.push(scenarioTable[i]);
-		}
-	}
-	else
-	{
-		for(i = 0; i < tables.length; i++)
-		{
-			tableArr.push(tables[i]);
-		}
-	}
-	
-	for(i = 0; i < tableArr.length; i++)
-	{
-		if(i == 0)
-		{
-			outQuery += " FROM " + tableArr[i];
-		}
-		else
-		{
-			outQuery += " NATURAL JOIN " + tableArr[i];
-		}
-	}
-	
-	if(attributes.length != values.length)
-	{
-		callback("ERROR: INVALID NUMBER OF ARGUMENTS", "err");
-	}
-	else
-	{
-		if(attributes.length != 0)
-		{
-			outQuery += " WHERE ";
-			
-			for(i = 0; i < attributes.length; i++)
-			{
-				if(i != 0)
-				{
-					if(attributes[i-1].valueOf() == attributes[i].valueOf())
-					{
-						outQuery += " OR ";
-					}
-					else
-					{
-						outQuery += " AND ";
-					}
-				}
-			
-				outQuery += attributes[i] + " = " + pool.escape(values[i]);
-				//console.log(outQuery);
-
-			}
-		}
-	}
-	
-	
-	
-	for(i = 0; i < extraCons.length; i++)
-	{
-		if(extraCons[i].valueOf() != "")
-		{
-			outQuery += extraConstraints[i] + extraCons[i];
-		}
-	}
-	
-	console.log(outQuery);
 	
 	pool.getConnection(function(err, connection){	
 
 		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		connection.query(outQuery, function(err, rows, fields){
+		connection.query(inQuery, [val], function(err, rows, fields){
 			
 			connection.release();
-			
-			if(!err){
-				callback(JSON.stringify(rows), null);					
-			}
-			else{
-				console.log('err');
-				callback("ERROR: QUERY ERROR", "err");
-			}
-			
-		});
-		
-		connection.on('error', function(error){
-			return;
-		});
-			
-	});
-};
 
-//exports.getQuery = function getQuery(fields, tables, attributes, values, extraCons, callback)
-exports.updateRow = function updateRow(table, setAttributes, setValues, whereAttributes, whereValues, callback)
-{
-	var outQuery = "UPDATE "
-	var i = 0;
-	
-	for(i = 0; i < table.length; i++)
-	{
-		outQuery += table[i];
-		
-		if(i+1 != table.length)
-		{
-			outQuery += ", ";
-		}
-	}
-	
-	outQuery += " SET "
-	
-	for(i = 0; i < setAttributes.length; i++)
-	{
-		outQuery += setAttributes[i] + " = " + pool.escape(setValues[i]);
-		
-		if(i+1 != setAttributes.length)
-		{
-			outQuery += ", ";
-		}
-	}
-	
-	if(whereAttributes.length != 0)
-	{
-		outQuery += " WHERE ";
-		
-		for(i = 0; i < whereAttributes.length; i++)
-		{
-			if(i != 0)
+			if(!err)
 			{
-				if(whereAttributes[i-1].valueOf() == whereAttributes[i].valueOf())
-				{
-					outQuery += " OR ";
+				
+				if(rows.length != 0)
+				{	
+					callback(rows , null);
 				}
 				else
 				{
-					outQuery += " AND ";
+					callback("ERROR: NO MATCHES FOUND " + val, "err");
 				}
-			}
-		
-			outQuery += whereAttributes[i] + pool.escape(whereValues[i]);
-			//console.log(outQuery);
-
-		}
-	}
-	
-	console.log(outQuery);
-	
-	pool.getConnection(function(err, connection){	
-
-		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		connection.query(outQuery, function(err, result){
-			
-			connection.release();
-			
-			if(!err){
-				console.log("Updated " + result.affectedRows + " rows.");
-				callback(JSON.stringify(result), null);					
-			}
-			else{
-				console.log('err');
-			}
-			
-		});
-		
-		connection.on('error', function(error){
-			return;
-		});
-			
-	});
-	
-}
-
-exports.insertRow = function insertRow(table, vals, callback)
-{
-	var outQuery = "INSERT INTO " + table + " VALUES(";
-	var i = 0;
-	
-	for(i = 0; i < vals.length; i++)
-	{
-		if(Number.isInteger(vals[i]))
-		{
-			outQuery += pool.escape(vals[i]);
-		}
-		else
-		{
-			outQuery += pool.escape(vals[i]);
-		}
-		
-		if(i+1 != vals.length)
-		{
-			outQuery +=  ", ";
-		}
-	}
-	
-	outQuery += ")";
-	console.log(outQuery);
-	
-	pool.getConnection(function(err, connection){	
-
-		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		connection.query(outQuery, function(err, rows, fields){
-			
-			
-			connection.release();
-			
-			if(!err){
-				callback(JSON.stringify(rows), null);					
-			}
-			else{
-				console.log('err');
-			}
-			
-		});
-		
-		connection.on('error', function(error){
-			return;
-		});
-			
-	});
-}
-
-exports.insertUser = function insertRow(vals, callback)
-{
-	var outQuery = "INSERT INTO USERS VALUES(";
-	var i = 0;
-	
-	for(i = 0; i < vals.length; i++)
-	{
-		if(Number.isInteger(vals[i]))
-		{
-			outQuery += pool.escape(vals[i]);
-		}
-		else
-		{
-			outQuery += pool.escape(vals[i]);
-		}
-		
-		if(i+1 != vals.length)
-		{
-			outQuery +=  ", ";
-		}
-	}
-	
-	outQuery += ")";
-	console.log(outQuery);
-	
-	pool.getConnection(function(err, connection){	
-
-	
-		connection.query("SELECT USERID FROM USERS WHERE EMAIL_ADDR = " + pool.escape(vals[4]), function(err, rows, fields){
-			
-			console.log(rows);
-			if(rows.length == 0)
-			{
-				connection.query(outQuery, function(err, rows, fields){
-					
-					connection.release();
-					
-					if(!err){
-						callback(JSON.stringify(rows), null);					
-					}
-					else{
-						console.log('err');
-					}
-				});
-			
-				connection.on('error', function(error){
-					return;
-				});
+				
+									
 			}
 			else
 			{
-				connection.release();
-				console.log("There was a duplicate email, err");
-				callback("ERROR: DUPLICATE EMAIL", "err");
+				console.log('err');
 			}
+			
 		});
 		
 		connection.on('error', function(error){
-				return;
+			return;
 		});
-		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		
 			
 	});
 }
+
+//	var userQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
+	" FROM USERS NATURAL JOIN SCENARIO NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
+
+
+exports.formatUserJSON = function formatUserJSON(str, callback)
+{
+	var retString = '{"players": [';
+	console.log(str.length);
+
+	var currID = -1;
+	var currScenID = -1;
+	var totalTime = 0;
+	var i = 0;
+
+	for(i = 0; i < str.length; i++)
+	{
+		
+		if(currID == str[i].USERID)
+		{
+			if(currScenID == str[i].SCENARIOID)
+			{
+				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+				retString += '"PROMPT": "' + str[i].PROMPT + '",';
+				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
+
+			}
+			else
+			{
+				retString += ']},{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
+				retString += '"TITLE": "' + str[i].TITLE + '",';
+				retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
+
+				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+				retString += '"PROMPT": "' + str[i].PROMPT + '",';
+				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
+
+				currScenID = str[i].SCENARIOID;
+			}
+		}
+		else
+		{
+			if(i != 0)
+			{
+				retString += '},';
+			}
+			
+
+			retString += '{"USERID": "' + str[i].USERID + '",';
+			retString += '"DATE_JOINED": "' + str[i].DATE_JOINED + '",';
+			retString += '"PROFILE_PIC": "' + str[i].PROFILE_PIC + '",';
+			retString += '"EMAIL_ADDR": "' + str[i].EMAIL_ADDR + '",';
+
+			retString += '"SCENARIOS": [{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
+			retString += '"TITLE": "' + str[i].TITLE + '",';
+			retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
+
+			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+			retString += '"PROMPT": "' + str[i].PROMPT + '",';
+			retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '"}';
+			
+			currID = str[i].USERID;
+			currScenID = str[i].SCENARIOID;
+
+		}
+
+		//console.log(i + ": " + retString);
+
+	}
+
+	retString += ']]}]}]}';
+
+	callback(retString, null);
+
+}
+
+
+/*
+{
+	"players": [
+		{"USERID": 1,
+		 "DATE_JOINED": Tue May 30 2017 00:00:00 GMT-0400 (Eastern Daylight Time),
+		 "PROFILE_PIC": /wand.png,
+		 "EMAIL_ADDR": HGranger@gmail.com,
+		 "SCENARIOS": [
+			 {"SCENARIOID": 1,
+			  "TITLE": Ordering Food at a Restaurant,
+			  "TIME_PLAYED": 01:30:30,
+			  "QUESTIONS": [
+				  {"QUESTIONID": 1,
+				   "PROMPT": What do you call the person serving your table?,
+				   "ANSWERID": 1,
+				   "ANSWER": Person
+				  },
+				  {"QUESTIONID": 2,
+				   "PROMPT": How much should you usually tip for a meal?,
+				   "ANSWERID": 5,
+				   "ANSWER": 15-25%
+				  }
+			   ],
+			{"SCENARIOID": 3,
+			 "TITLE": Checking into a Hotel,
+			 "TIME_PLAYED": 01:14:30,
+			 "QUESTIONS": [
+				 {"QUESTIONID": 5,
+				  "PROMPT": What item is often on the service desk to ask for help?,
+				  "ANSWERID": 14,
+				  "ANSWER": Megaphone
+				 },
+				 {"QUESTIONID": 6,
+				  "PROMPT": How should you thank an employee of the hotel if they bring your bags to your room?,
+				  "ANSWERID": 18,
+				  "ANSWER": Thank them}
+			 ]
+		 ]
+			}
+	]
+}
+
+*/
