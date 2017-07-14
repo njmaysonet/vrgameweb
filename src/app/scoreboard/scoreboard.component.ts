@@ -17,6 +17,7 @@ export class ScoreboardComponent implements OnInit {
     errorMessage: string;
     players: Player[];
     mode = 'Observable';
+    isChecked = true;
 
     constructor (private scoreboardService: ScoreboardService){}
 
@@ -33,5 +34,9 @@ export class ScoreboardComponent implements OnInit {
                 },
                 error => this.errorMessage = <any>error
                 );
+    }
+
+    toggle(){
+        this.isChecked = this.isChecked;
     }
 }

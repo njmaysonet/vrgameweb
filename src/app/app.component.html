@@ -5,7 +5,7 @@
         <i class="material-icons">reorder</i>
       </button>
       <md-menu #menu="mdMenu" yPosition="below" [overlapTrigger]="false">
-        <button md-menu-item>
+        <button md-menu-item (click)="loginRedirect()">
           <i class="material-icons">person</i>
           Login
         </button>

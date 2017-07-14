@@ -23,6 +23,7 @@ import { DownloadsComponent} from './downloads/downloads.component';
 import { AppMaterialModule } from './app-material.module';
 import { ScoreboardComponent} from './scoreboard/scoreboard.component';
 import { AboutComponent} from './about/about.component';
+import { LoginComponent} from './auth/login.component';
 //import { ScoreboardRemote} from './scoreboard/scoreboard.remote';
 
 @NgModule({
@@ -31,7 +32,8 @@ import { AboutComponent} from './about/about.component';
     HomeComponent,
     DownloadsComponent,
     ScoreboardComponent,
-    AboutComponent
+    AboutComponent,
+    LoginComponent
     //ScoreboardRemote
   ],
   imports: [

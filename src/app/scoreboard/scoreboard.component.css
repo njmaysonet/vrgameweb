@@ -11,12 +11,27 @@
 .searchbar{
     font-size: 20px;
 }
+.search-container{
+    margin: 100px auto;
+    width: 30%;
+}
+.list-title{
+    font-size: 40px;
+}
+.featured{
+    margin: 100px auto;
+    padding: 10px;
+    text-align: center;
+}
 h3
 {
     margin: 1em 0;
 }
-h1
-{
-    background-color: white;
-    padding: 1em 1em;
+.footer{
+    text-align: center;
+    padding: 40px;
+}
+.fcard{
+    margin: auto;
+    padding: 0;
 }

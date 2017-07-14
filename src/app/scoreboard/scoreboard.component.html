@@ -29,24 +29,28 @@
         </md-card>
     </div>
 </div> -->
-<div class="container">
-    <div fxLayout="column" fxAlign="none none">
-        <div>
-            <md-card class="searchCard">
-                <md-card-title>Profile Search <i class="material-icons">search</i></md-card-title>
-                <md-input-container class=searchbar>
-                    <input mdInput placeholder="Enter username..." type="search">
-                </md-input-container>
-            </md-card>
-        </div>
+<div>
+    <div fxLayout="column" fxAlign="none none" class="search-container">
+        <md-card class="searchCard">
+            <div fxLayout="column" fxAlign="none center">
+            <md-card-title style="text-align: center">Profile Search <i class="material-icons">search</i></md-card-title>
+            <md-input-container class=searchbar>
+                <input mdInput placeholder="Enter username..." type="search">
+            </md-input-container>
+            </div>
+        </md-card>
     </div>
+</div>
+
+<div class="featured" style="background-color: #607D8B">
+    <h1 class="text-primary-color list-title"> Featured Players </h1>
 </div>
 <div class="container" *ngFor="let player of players">
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>
             <md-card-title>{{player.name}}</md-card-title>
-            <md-card-subtitle>{{player.title}}</md-card-subtitle>
+            <md-card-subtitle>Total Time Played: {{player.timePlayed}} hours.</md-card-subtitle>
             <md-card-content>
                 <h3>Bio:</h3>
                 <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
@@ -56,15 +60,12 @@
                     reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
                     Excepteur sint occaecat cupidatat non proident, 
                     sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
-                <h3> Scenario 1 Progress: {{player.progress1}}% </h3>
-                <md-progress-bar mode="determinate" [value]="[player.progress1]" [color] = "blue">
-                </md-progress-bar>
-                <h3> Scenario 2 Progress: {{player.progress2}}% </h3>
-                <md-progress-bar mode="determinate" [value]="[player.progress2]" [color] = "blue">
-                </md-progress-bar>
-                <h3> Scenario 3 Progress: {{player.progress3}}% </h3>
-                <md-progress-bar mode="determinate" [value]="[player.progress3]" [color] = "blue">
-                </md-progress-bar>
+                <h3> Scenario Completion: </h3>
+                <md-checkbox [checked]="[player.progress1]" [disabled]="true">Scenario 1</md-checkbox>
+                <br>
+                <md-checkbox [checked]="[player.progress2]" [disabled]="true">Scenario 2</md-checkbox>
+                <br>
+                <md-checkbox [checked]="[player.progress3]" [disabled]="true">Scenario 3</md-checkbox>
             </md-card-content>
             <md-card-actions>
                 <button md-button> SHARE </button>
@@ -72,20 +73,3 @@
         </md-card>
     </div>
 </div>
-<!-- <div class="scoreboardContainer">
-    <data-table id="scoreboard-grid"
-        headerTitle="Scoreboard"
-        [items]="items"
-        [itemCount]="itemCount"
-        (reload)="reloadItems($event)"
-        (rowClick)="rowClick($event)"
-        (rowDoubleClick)="rowDoubleClick($event)"
-        [rowTooltip]="rowTooltip">
-        <data-table-column
-        [property]="'name'"
-        [header]="'Name'"
-        [sortable]="true"
-        [resizable]="true">
-        </data-table-column>
-    </data-table> 
-</div>-->

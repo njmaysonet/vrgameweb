@@ -2,28 +2,25 @@
     "players": [{
         "id": 0,
         "name": "John Doe",
-        "title": "Beginner",
-        "currentLevel": "Tutorial",
-        "progress1": "33",
-        "progress2": "2",
-        "progress3": "0"
+        "timePlayed": "1",
+        "progress1": "true",
+        "progress2": "false",
+        "progress3": "false"
     },
     {
         "id": 1,
         "name": "Will Smith",
-        "title": "Frequent Flyer",
-        "currentLevel": "Final",
-        "progress1": "100",
-        "progress2": "80",
-        "progress3": "75"
+        "timePlayed": "3",
+        "progress1": "true",
+        "progress2": "true",
+        "progress3": "false"
     },
     {
         "id": 2,
         "name": "Robbie Rotten",
-        "title": "Traveler",
-        "currentLevel": "2nd",
-        "progress1": "100",
-        "progress2": "100",
-        "progress3": "0"
+        "timePlayed": "6",
+        "progress1": "true",
+        "progress2": "true",
+        "progress3": "true"
     }]
 }

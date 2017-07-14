@@ -9,6 +9,7 @@ import {HomeComponent} from '../home/home.component';
 import {DownloadsComponent} from '../downloads/downloads.component';
 import {ScoreboardComponent} from '../scoreboard/scoreboard.component';
 import {AboutComponent} from '../about/about.component';
+import {LoginComponent} from '../auth/login.component';
 
 //Array containing routing information and directives
 const routes: Routes = [
@@ -16,7 +17,8 @@ const routes: Routes = [
     {path: 'home', component: HomeComponent},
     {path: 'downloads', component: DownloadsComponent},
     {path: 'scoreboard', component: ScoreboardComponent},
-    {path: 'about', component: AboutComponent}
+    {path: 'about', component: AboutComponent},
+    {path: 'login', component: LoginComponent}
 ];
 
 @NgModule({
