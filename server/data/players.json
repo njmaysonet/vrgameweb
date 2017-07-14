@@ -5,7 +5,7 @@
         "title": "Beginner",
         "currentLevel": "Tutorial",
         "progress1": "33",
-        "progress2": "0",
+        "progress2": "2",
         "progress3": "0"
     },
     {
@@ -13,17 +13,17 @@
         "name": "Will Smith",
         "title": "Frequent Flyer",
         "currentLevel": "Final",
-        "progress1": "33",
-        "progress2": "0",
-        "progress3": "0"
+        "progress1": "100",
+        "progress2": "80",
+        "progress3": "75"
     },
     {
         "id": 2,
         "name": "Robbie Rotten",
         "title": "Traveler",
         "currentLevel": "2nd",
-        "progress1": "33",
-        "progress2": "0",
+        "progress1": "100",
+        "progress2": "100",
         "progress3": "0"
     }]
 }

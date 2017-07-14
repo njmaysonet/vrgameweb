@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Http, Response, URLSearchParams } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
@@ -17,6 +17,17 @@ export class ScoreboardService{
         return this.http.get(this.apiURL)
             .map((res: Response) => res.json().players)
             .catch(this.handleError);
+    }
+
+    searchPlayers(term: string){
+        let searchURL = 'http://localhost:3000/api/data/search';
+        let params = new URLSearchParams();
+        params.set('search',term);
+
+        return this.http
+            .get(searchURL, {search: params})
+            .map(response => <Player[]> response.json());
+
     }
 
     private handleError(error: Response | any) {

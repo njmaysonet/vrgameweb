@@ -31,7 +31,14 @@
 </div> -->
 <div class="container">
     <div fxLayout="column" fxAlign="none none">
-        <h1> Scoreboard Page </h1>
+        <div>
+            <md-card class="searchCard">
+                <md-card-title>Profile Search <i class="material-icons">search</i></md-card-title>
+                <md-input-container class=searchbar>
+                    <input mdInput placeholder="Enter username..." type="search">
+                </md-input-container>
+            </md-card>
+        </div>
     </div>
 </div>
 <div class="container" *ngFor="let player of players">

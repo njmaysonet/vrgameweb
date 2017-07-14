@@ -1,0 +1,29 @@
+.container{
+    margin: 2em auto;
+}
+.ibraheem-image{
+    border: 5px solid #607D8B;
+    border-radius: 50%;
+    width: 250px;
+    height: 250px;
+    min-width: 250px;
+    min-height: 250px;
+    margin: 0 50px;
+    position: relative;
+    top: -50px;
+}
+.team-card-p{
+    max-width: 700px;
+    text-align: justify;
+}
+.team-card{
+    margin: 0 auto 100px;
+}
+.footer{
+    text-align: center;
+    padding: 40px;
+}
+.fcard{
+    margin: auto;
+    padding: 0;
+}
