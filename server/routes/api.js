@@ -51,11 +51,23 @@ FROM YourTableName
 router.get('/userinfo/:id', (req, res) => {
 	
 	var userQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
-	" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
+	" FROM USERS NATURAL JOIN SCENARIO NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
 	dbConn.queryDB(userQuery, req.params.id, function(val, err){
 
 		if(err){
-			res.send(val);
+
+			userQuery = "SELECT USERID, DATE_JOINED, PROFILE_PIC, EMAIL_ADDR FROM USERS WHERE USERID = ?";
+			dbConn.queryDB(userQuery, req.params.id, function(inVal, inErr){
+				if(inErr)
+				{
+					res.send('no users found');
+				}
+				else
+				{
+					res.send('{ "players:"' + JSON.stringify(inVal) + "}");
+				}
+
+			})
 		}
 		else{
 			dbConn.formatUserJSON(val, function(ret, err){
@@ -68,6 +80,26 @@ router.get('/userinfo/:id', (req, res) => {
 	});
 	
 });
+
+
+router.post('/insertUser', function(req, res){
+	var location = req.body.LOCATION;
+	var mainLang = req.body.MAIN_LANGUAGE;
+
+	var userQuery = "INSERT INTO CULTURES VALUES(?,?)";
+
+	dbConn.queryDB(userQuery, [location, mainLang], function(val, err){
+
+		if(err){
+			res.send(val);
+		}
+		else{
+			res.send("successfully inserted into db");
+		}
+	});
+
+});
+
 
 
 router.get('/data', (req, res) => {

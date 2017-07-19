@@ -16,7 +16,7 @@ exports.queryDB = function queryDB(inQuery, val, callback)
 	pool.getConnection(function(err, connection){	
 
 		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		connection.query(inQuery, [val], function(err, rows, fields){
+		connection.query(inQuery, val, function(err, rows, fields){
 			
 			connection.release();
 
@@ -36,7 +36,7 @@ exports.queryDB = function queryDB(inQuery, val, callback)
 			}
 			else
 			{
-				console.log('err');
+				console.log('connection problem');
 			}
 			
 		});
