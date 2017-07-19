@@ -1,3 +1,21 @@
+/*
+players
+-date joined(date:string)
+-time played(hours:number)
+-scenarios (array)
+    -name
+    -question responses (array)
+        -question
+        -response
+    -completed:boolean
+    -time completed:time(number)
+-profile pic (filename.extension)
+-email address(string:email URL) **will not be shown in profile to public so don't need it right now
+
+SELECT  SEC_TO_TIME( SUM( TIME_TO_SEC( `timeSpent` ) ) ) AS timeSum  
+FROM YourTableName  
+*/
+
 
 {
 	"players": [

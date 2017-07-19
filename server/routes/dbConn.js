@@ -10,13 +10,14 @@ var pool = mysql.createPool({
 })
 
 
-exports.queryDB = function queryDB(inQuery, val, callback)
+exports.queryDB = function queryDB(inQuery,  callback)
 {
 	
 	pool.getConnection(function(err, connection){	
 
 		//query: userQuery = mySql query, err = error state, rows = data, fields = attributes (if needed)
-		connection.query(inQuery, val, function(err, rows, fields){
+		console.log(inQuery);
+		connection.query(inQuery, function(err, rows, fields){
 			
 			connection.release();
 
@@ -29,7 +30,7 @@ exports.queryDB = function queryDB(inQuery, val, callback)
 				}
 				else
 				{
-					callback("ERROR: NO MATCHES FOUND " + val, "err");
+					callback("ERROR: NO MATCHES FOUND" , "err");
 				}
 				
 									
@@ -49,7 +50,7 @@ exports.queryDB = function queryDB(inQuery, val, callback)
 }
 
 //	var userQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
-	" FROM USERS NATURAL JOIN SCENARIO NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
+//	" FROM USERS NATURAL JOIN SCENARIO NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
 
 
 exports.formatUserJSON = function formatUserJSON(str, callback)
@@ -126,47 +127,3 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 
 }
 
-
-/*
-{
-	"players": [
-		{"USERID": 1,
-		 "DATE_JOINED": Tue May 30 2017 00:00:00 GMT-0400 (Eastern Daylight Time),
-		 "PROFILE_PIC": /wand.png,
-		 "EMAIL_ADDR": HGranger@gmail.com,
-		 "SCENARIOS": [
-			 {"SCENARIOID": 1,
-			  "TITLE": Ordering Food at a Restaurant,
-			  "TIME_PLAYED": 01:30:30,
-			  "QUESTIONS": [
-				  {"QUESTIONID": 1,
-				   "PROMPT": What do you call the person serving your table?,
-				   "ANSWERID": 1,
-				   "ANSWER": Person
-				  },
-				  {"QUESTIONID": 2,
-				   "PROMPT": How much should you usually tip for a meal?,
-				   "ANSWERID": 5,
-				   "ANSWER": 15-25%
-				  }
-			   ],
-			{"SCENARIOID": 3,
-			 "TITLE": Checking into a Hotel,
-			 "TIME_PLAYED": 01:14:30,
-			 "QUESTIONS": [
-				 {"QUESTIONID": 5,
-				  "PROMPT": What item is often on the service desk to ask for help?,
-				  "ANSWERID": 14,
-				  "ANSWER": Megaphone
-				 },
-				 {"QUESTIONID": 6,
-				  "PROMPT": How should you thank an employee of the hotel if they bring your bags to your room?,
-				  "ANSWERID": 18,
-				  "ANSWER": Thank them}
-			 ]
-		 ]
-			}
-	]
-}
-
-*/
