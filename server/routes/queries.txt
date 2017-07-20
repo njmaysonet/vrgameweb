@@ -1,0 +1,5 @@
+*Single User Query
+*Multi User Query
+*Single Scenario Query
+*Multi Scenario Query
+*Show Score
