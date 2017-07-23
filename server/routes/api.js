@@ -174,7 +174,7 @@ router.get('/scenarioscores', (req, res) => {
 	}
 	else
 	{
-		var inQuery = 'SELECT USERID, USERNAME, SUM(SCORE) AS TOTAL_SCORE FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS WHERE SCENARIOID = ? GROUP BY USERID';
+		var inQuery = 'SELECT USERID, USERNAME, SUM(SCORE) AS TOTAL_SCORE FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS WHERE SCENARIOID = ? AND MOST_RECENT = 1 GROUP BY USERID';
 		dbConn.queryDB(mysql.format(inQuery, scenarioid), function(val, err){
 			if(err) {
 				res.send(val);
@@ -197,7 +197,7 @@ router.get('/scenarioresponses', (req, res) => {
 	}
 	else
 	{
-		var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO WHERE SCENARIOID = ? GROUP BY ANSWERID';
+		var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO WHERE SCENARIOID = ? AND MOST_RECENT = 1 GROUP BY ANSWERID';
 		dbConn.queryDB(mysql.format(inQuery, scenarioid), function(val, err){
 			if(err) {
 				res.send(val);
@@ -269,6 +269,116 @@ router.post('/insertUser', function(req, res){
 		});
 	}
 });
+
+router.post('/playdata', (req, res) => {
+	//req.body.var
+
+	var inQuery = '';
+
+	dbConn.queryDB(inQuery, function(val, err){
+		if(err)
+		{
+			res.send(val);
+		}
+		else	
+		{
+			//format accordingly
+			res.send('successfully did the thing');
+		}
+	});
+
+
+});
+
+router.post('/newtestplayerdata', (req, res) => {
+	var inserts = [req.body.USERID, req.body.SCENARIOID, req.body.TIME_COMPLETE, req.body.TIME_PLAYED, req.body.ANSWERS];
+
+	if(inserts[0] == undefined || inserts[1] == undefined || inserts[2] == undefined || inserts[3] == undefined || inserts[4] == undefined)
+	{
+		console.log('ERROR: MISSING PARAMETER');
+	}
+	else
+	{
+		dbConn.insertUserResponseDB(inserts, function(val, err){
+			if(err)
+			{
+				res.send(val);
+			}
+			else	
+			{
+				//format accordingly
+				res.send('successfully did the thing');
+			}
+
+		});
+
+	}
+	
+});
+
+router.post('/testplayerdata', (req, res) => {
+
+	var inserts = [req.body.USERID, req.body.SCENARIOID, req.body.TIME_PLAYED, req.body.ANSWERS];
+
+	if(inserts[0] == undefined || inserts[1] == undefined || inserts[2] == undefined || inserts)
+	{
+		res.send('ERROR: MISSING PARAMETER');
+	}
+	else
+	{
+		var inQuery = "INSERT INTO USER_SCENARIO_INFO VALUES(?,?,CURRENT_TIMESTAMP,?,'0')";
+
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+			
+			if(err)
+			{
+				res.send(val);
+			}
+			else	
+			{
+				inserts = [req.body.USERID, req.body.SCENARIOID];
+				inQuery = "UPDATE USER_SCENARIO_INFO SET MOST_RECENT = MOST_RECENT + 1 WHERE USERID = ? AND SCENARIOID = ?";
+
+				dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+					
+					if(err)
+					{
+						res.send(val);
+					}
+					else	
+					{
+						inserts = [req.body.USERID, req.body.SCENARIOID];
+						inQuery = "DELETE FROM USER_SCENARIO_INFO WHERE USERID = ? AND SCENARIOID = ? AND MOST_RECENT > 9";
+						
+						dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+							
+							if(err)
+							{
+								res.send(val);
+							}
+							else	
+							{
+								res.send('success');
+							}
+						});
+						
+					}
+				});
+			}
+		});
+
+	}
+});
+
+
+
+process.on('warning', (warning) => {
+  console.warn(warning.name);    // Print the warning name
+  console.warn(warning.message); // Print the warning message
+  console.warn(warning.stack);   // Print the stack trace
+});
+
+
 
 module.exports = router;
 
