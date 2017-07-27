@@ -49,9 +49,7 @@ exports.queryDB = function queryDB(inQuery,  callback)
 				}
 				
 			});
-		}
-		
-			
+		}	
 	});
 }
 
@@ -147,6 +145,132 @@ exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
 		
 			
 	});
+
+
+}
+
+exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callback)
+{
+	var inQuery = "INSERT INTO SCENARIOS VALUES('0',?,?,?,?,?)"
+	var inserts = [pool.escape(cultureid), json.TITLE, json.DATE_CREATED, json.SUMMARY, json.MAX_SCORE];
+	var goals = [], availLang = [], questions = [], answers = [];
+	var scenid;
+
+	var i = 0, j = 0;
+
+	pool.getConnection(function(err, connection){	
+
+		if(err)
+		{
+			connection.release();
+			callback("ERROR: COULDN'T CONNECT");
+		}
+		else
+		{
+			//queries the db using inQuery
+			console.log(mysql.format(inQuery, inserts));
+			connection.query(mysql.format(inQuery, inserts), function(err, rows, fields){
+				
+				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
+				if(!err)
+				{
+					inQuery = 'SELECT SCENARIOID FROM SCENARIOS WHERE CULTUREID = ? AND TITLE = ?';
+					inserts = [pool.escape(cultureid), json.TITLE];
+					connection.query(mysql.format(inQuery, inserts), function(err, rows, fields){
+					
+						if(!err)
+						{
+							scenid = rows[0].SCENARIOID;
+							
+							for(i = 0; i < json.GOALS.length; i++)
+							{
+								goals.push([pool.escape(scenid), json.GOALS[i].GOAL]);
+							}
+
+							inQuery = 'INSERT INTO GOALS (SCENARIOID, GOAL) VALUES ?'
+
+							connection.query(inQuery, [goals], function(err, rows, fields){
+
+								if(!err)
+								{
+									for(i = 0; i < json.AVAILABLE_LANGUANGES.length; i++)
+									{
+										availLang.push([pool.escape(scenid), json.AVAILABLE_LANGUANGES[i].LANGUAGE]);
+									}
+
+									inQuery = 'INSERT INTO LANGUAGES (SCENARIOID, AVAIL_LANGUAGE) VALUES ?';
+								
+									connection.query(inQuery, [availLang], function(err, rows, fields){
+
+										if(!err)
+										{
+											for(i = 0; i < json.QUESTIONS.length; i++)
+											{
+												questions.push([pool.escape(i+1), pool.escape(scenid), json.QUESTIONS[i].PROMPT]);
+												for(j = 0; j < json.QUESTIONS[i].ANSWERS.length; j++)
+												{
+													answers.push([pool.escape(j+1), pool.escape(i+1), pool.escape(scenid), json.QUESTIONS[i].ANSWERS[j].ANSWER, json.QUESTIONS[i].ANSWERS[j].SCORE, json.QUESTIONS[i].ANSWERS[j].REASONING]);
+												}
+											}
+
+											inQuery = 'INSERT INTO QUESTIONS (QUESTIONID, SCENARIOID, PROMPT) VALUES ?';
+
+											connection.query(inQuery, [questions], function(err, rows, fields){
+
+												if(!err)
+												{
+													inQuery = 'INSERT INTO ANSWERS (ANSWERID, QUESTIONID, SCENARIOID, ANSWER, SCORE, REASONING) VALUES ?';
+													connection.query(inQuery, [answers], function(err, rows, fields){
+
+														connection.release();
+
+														if(!err)
+														{
+															callback('successfully added everything', null);
+														}
+														else
+														{
+															callback('ERR: COULD NOT INSERT ANSWERS', 'err');
+														}
+													
+													});
+												}
+											});
+										}
+										else
+										{
+											connection.release();
+											callback('ERR: COULD NOT INSERT AVAILABLE LANGUAGES', 'err');
+										}
+									
+									});
+
+								}
+								else
+								{
+									connection.release();
+									callback('ERR: COULD NOT ADD GOALS', 'err');
+								}
+							});
+						}
+						else
+						{
+							connection.release();
+							console.log('ERR: COULD NOT INSERT SCENARIO');
+						}
+						
+					});
+				}
+				else
+				{
+					connection.release();
+					console.log('ERR: COULD NOT CONNECT TO DB');
+				}
+				
+			});
+		}	
+	});
+
 
 
 }

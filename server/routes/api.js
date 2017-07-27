@@ -6,9 +6,12 @@ var mysql = require('mysql');
 var http = require('http').Server(express);
 var io = require('socket.io')(http);
 
+var testjson = require('./scenairo.json');
+
 //API Listing
 router.get('/', (req, res) => {
-    res.send('api works 3');
+
+	res.send('api works  5');
 });
 
 //gets all user info where userid = id;
@@ -39,6 +42,33 @@ router.get('/user', (req, res) => {
 		});
 	}
 });
+
+router.get('/gameuser', (req, res) =>{
+
+	var userData;
+	var inQuery;
+
+	if(req.query.username == undefined && req.query.email == undefined)
+	{
+		res.send('ERR: NO PARAMETERS TO SEARCH FOR');
+	}
+	else if(req.query.email == undefined)
+	{
+		userData = req.query.username;
+		inQuery = "SELECT USERID FROM USERS WHERE USERNAME = ?";
+	}
+	else
+	{
+		userData = req.query.email;
+		inQuery = "SELECT USERID FROM USERS WHERE EMAIL_ADDR = ?";
+	}
+
+	dbConn.queryDB(mysql.format(inQuery, userData), function(val, err){
+		res.send(JSON.stringify(val[0].USERID));
+	});
+
+});
+
 
 //returns all relevant user info where userid = id
 router.get('/userinfo', (req, res) => {
@@ -210,10 +240,31 @@ router.get('/scenarioresponses', (req, res) => {
 	}
 });
 
+router.get('/getgroup', (req, res) => {
+
+	var inserts = req.query.groupid;
+	var inQuery = 'SELECT * FROM GROUPS NATURAL JOIN GROUP_MEMBERS WHERE GROUPID = ?';
+
+	dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+		if(err)
+		{
+			res.send(val);
+		}
+		else
+		{
+			res.send(val);
+		}
+
+	});
+
+})
+
+router.get('/allmygroups', (req, res) => {
+
 //inserts culture into the db
 //https://stackoverflow.com/questions/14551194/how-are-parameters-sent-in-an-http-post-request if we have issues getting data
 //using postman for now
-router.post('/insertCulture', function(req, res){
+router.post('/insertCulture', (req, res) => {
 
 	//get inserts
 	var inserts = [req.body.LOCATION, req.body.MAIN_LANGUAGE];
@@ -239,7 +290,7 @@ router.post('/insertCulture', function(req, res){
 	}
 });
 
-router.post('/insertUser', function(req, res){
+router.post('/insertUser', (req, res) => {
 
 	//get inserts
 	var inserts = [req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
@@ -258,39 +309,17 @@ router.post('/insertUser', function(req, res){
 		//insert the values into the db. 
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 
-			if(err)
-			{
+			if(err) {
 				res.send(val);
 			}
-			else
-			{
+			else {
 				res.send("successfully inserted user into db");
 			}
 		});
 	}
 });
 
-router.post('/playdata', (req, res) => {
-	//req.body.var
-
-	var inQuery = '';
-
-	dbConn.queryDB(inQuery, function(val, err){
-		if(err)
-		{
-			res.send(val);
-		}
-		else	
-		{
-			//format accordingly
-			res.send('successfully did the thing');
-		}
-	});
-
-
-});
-
-router.post('/newtestplayerdata', (req, res) => {
+router.post('/playerdata', (req, res) => {
 	var inserts = [req.body.USERID, req.body.SCENARIOID, req.body.TIME_COMPLETE, req.body.TIME_PLAYED, req.body.ANSWERS];
 
 	if(inserts[0] == undefined || inserts[1] == undefined || inserts[2] == undefined || inserts[3] == undefined || inserts[4] == undefined)
@@ -300,12 +329,10 @@ router.post('/newtestplayerdata', (req, res) => {
 	else
 	{
 		dbConn.insertUserResponseDB(inserts, function(val, err){
-			if(err)
-			{
+			if(err) {
 				res.send(val);
 			}
-			else	
-			{
+			else {
 				//format accordingly
 				res.send('successfully did the thing');
 			}
@@ -316,59 +343,53 @@ router.post('/newtestplayerdata', (req, res) => {
 	
 });
 
-router.post('/testplayerdata', (req, res) => {
+router.get('/insertscenario', (req, res) => {
 
-	var inserts = [req.body.USERID, req.body.SCENARIOID, req.body.TIME_PLAYED, req.body.ANSWERS];
+	var inData = testjson;
+	var inQuery = 'SELECT CULTUREID FROM CULTURES WHERE LOCATION = ?';
 
-	if(inserts[0] == undefined || inserts[1] == undefined || inserts[2] == undefined || inserts)
+	dbConn.queryDB(mysql.format(inQuery, inData.LOCATION), function(val, err){
+		console.log(val[0].CULTUREID);
+		if(val[0].CULTUREID != undefined)
+		{
+			dbConn.insertScenarioInfo(inData, val[0].CULTUREID, function(val, err){
+				res.send(val);
+			});
+		}
+	});
+});
+
+router.post('/creategroup', (req, res) => {
+
+	var inserts = [req.body.GROUP_NAME, req.body.CREATOR];
+	var inQuery;
+
+	if(req.body.CREATOR == undefined)
 	{
-		res.send('ERROR: MISSING PARAMETER');
+		res.send('ERR: MISSING PARAMS');
+	}
+	else if(req.body.GROUP_NAME == undefined)
+	{
+		inserts = req.body.CREATOR;
+		inQuery = "INSERT INTO GROUPS VALUES('0', null, ?)";
 	}
 	else
 	{
-		var inQuery = "INSERT INTO USER_SCENARIO_INFO VALUES(?,?,CURRENT_TIMESTAMP,?,'0')";
-
-		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
-			
-			if(err)
-			{
-				res.send(val);
-			}
-			else	
-			{
-				inserts = [req.body.USERID, req.body.SCENARIOID];
-				inQuery = "UPDATE USER_SCENARIO_INFO SET MOST_RECENT = MOST_RECENT + 1 WHERE USERID = ? AND SCENARIOID = ?";
-
-				dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
-					
-					if(err)
-					{
-						res.send(val);
-					}
-					else	
-					{
-						inserts = [req.body.USERID, req.body.SCENARIOID];
-						inQuery = "DELETE FROM USER_SCENARIO_INFO WHERE USERID = ? AND SCENARIOID = ? AND MOST_RECENT > 9";
-						
-						dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
-							
-							if(err)
-							{
-								res.send(val);
-							}
-							else	
-							{
-								res.send('success');
-							}
-						});
-						
-					}
-				});
-			}
-		});
+		inserts = [req.body.GROUP_NAME, req.body.CREATOR];
+		inQuery = "INSERT INTO GROUPS VALUES('0', "
 
 	}
+
+	dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+		if(err) {
+			res.send('ERR: FAILED TO CREATE GROUP');
+		}
+		else {
+			res.send('success');
+		}	
+	});
 });
+
 
 
 
