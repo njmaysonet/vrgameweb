@@ -64,7 +64,13 @@ router.get('/gameuser', (req, res) =>{
 	}
 
 	dbConn.queryDB(mysql.format(inQuery, userData), function(val, err){
-		res.send(JSON.stringify(val[0].USERID));
+		if(err) {
+			res.send(null);
+		}
+		else {
+			res.send(JSON.stringify(val[0].USERID));
+		}
+		
 	});
 
 });
@@ -74,6 +80,7 @@ router.get('/gameuser', (req, res) =>{
 router.get('/userinfo', (req, res) => {
 	
 	var userid = req.query.userid;
+	var history = req.query.history;
 
 	//check to see if params are there
 	if(userid == undefined)
@@ -83,9 +90,14 @@ router.get('/userinfo', (req, res) => {
 	else
 	{
 		//gross query
-		var inQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
+		var inQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE, TIME_COMPLETE, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
 		" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
 		
+		if(history == 'true')
+		{
+			inQuery += " AND MOST_RECENT = 1";
+		}
+
 		//searches db to see if userid = id exists with game data.
 		dbConn.queryDB(mysql.format(inQuery, userid), function(val, err){
 
@@ -240,15 +252,15 @@ router.get('/scenarioresponses', (req, res) => {
 	}
 });
 
-router.get('/getgroup', (req, res) => {
+router.get('/getgroupmembers', (req, res) => {
 
 	var inserts = req.query.groupid;
-	var inQuery = 'SELECT * FROM GROUPS NATURAL JOIN GROUP_MEMBERS WHERE GROUPID = ?';
+	var inQuery = 'SELECT USERID FROM GROUPS NATURAL JOIN GROUP_MEMBERS WHERE GROUPID = ?';
 
 	dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 		if(err)
 		{
-			res.send(val);
+			res.send(jSON.stringify(val));
 		}
 		else
 		{
@@ -259,7 +271,52 @@ router.get('/getgroup', (req, res) => {
 
 })
 
-router.get('/allmygroups', (req, res) => {
+router.get('/getgroupdata', (req, res) => {
+
+	var inserts = [req.query.scenid, req.query.groupid];
+	var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS WHERE SCENARIOID = ? AND MOST_RECENT = 1 AND GROUPID = ? GROUP BY ANSWERID'
+
+	if(inserts[0] == undefined || inserts[1] == undefined)
+	{
+		res.send('ERROR: MISSING PARAMETERS');
+	}
+	else
+	{
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+			if(err) {
+				res.send(val);
+			}
+			else {
+				//format accordingly
+				res.send(val);
+			}
+		});
+	}
+});
+
+router.get('/groupscores', (req, res) => {
+
+	var inserts = [req.query.scenid, req.query.groupid];
+
+	if(inserts[0] == undefined || inserts[1] == undefined)
+	{
+		res.send('ERROR: NO SCENARIOID PARAMETER')
+	}
+	else
+	{
+		var inQuery = 'SELECT USERID, SCENARIOID, SUM(SCORE) AS USER_SCORE, MAX_SCORE FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND GROUPID = ? AND MOST_RECENT = 1 GROUP BY USERID';
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+			if(err) {
+				res.send(val);
+			}
+			else {
+				//format accordingly
+				res.send(val);
+			}
+		});
+	}
+});
+
 
 //inserts culture into the db
 //https://stackoverflow.com/questions/14551194/how-are-parameters-sent-in-an-http-post-request if we have issues getting data
@@ -376,7 +433,7 @@ router.post('/creategroup', (req, res) => {
 	else
 	{
 		inserts = [req.body.GROUP_NAME, req.body.CREATOR];
-		inQuery = "INSERT INTO GROUPS VALUES('0', "
+		inQuery = "INSERT INTO GROUPS VALUES('0',?,?)";
 
 	}
 
@@ -387,6 +444,31 @@ router.post('/creategroup', (req, res) => {
 		else {
 			res.send('success');
 		}	
+	});
+});
+
+router.post('/addmembers', (req, res) => {
+
+	var members = JSON.parse(req.body.userids);
+	var groupid = req.body.groupid;
+	
+	var inserts = [];
+	var i = 0;
+	for(i = 0; i < members.length; i++)
+	{
+		inserts.push([groupid, members[i]]);
+	}
+
+	var inQuery = "INSERT INTO GROUP_MEMBERS(GROUPID, USERID) VALUES ?";
+
+	dbConn.queryMulti(inQuery, inserts, function(val, err){
+		if(err) {
+			res.send('ERR: FAILED TO ADD MEMBERS');
+		}
+		else {
+			res.send('success');
+		}	
+
 	});
 });
 

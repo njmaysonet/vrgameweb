@@ -53,6 +53,50 @@ exports.queryDB = function queryDB(inQuery,  callback)
 	});
 }
 
+exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
+{
+	//connects user to the pool
+	pool.getConnection(function(err, connection){	
+
+		console.log(inQuery);
+		if(err)
+		{
+			connection.release();
+			callback("ERROR: COULDN'T CONNECT", "err");
+		}
+		else
+		{
+			//queries the db using inQuery
+			connection.query(inQuery, [multiArr], function(err, rows, fields){
+				
+				connection.release();
+
+				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
+				if(!err)
+				{
+					//if something was returned, return int via callback, otherwise give a no matches found err
+					if(rows.length != 0)
+					{	
+						callback(rows , null);
+					}
+					else
+					{
+						callback("ERROR: NO MATCHES FOUND" , "err");
+					}
+					
+										
+				}
+				else
+				{
+					console.log('connection problem');
+				}
+				
+			});
+		}	
+	});
+
+}
+
 exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
 {
 	var inQuery = "INSERT INTO USER_SCENARIO_INFO VALUES(?,?,?,?,'0')";
@@ -256,7 +300,7 @@ exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callba
 						else
 						{
 							connection.release();
-							console.log('ERR: COULD NOT INSERT SCENARIO');
+							callback('ERR: COULD FIND SCENARIO', 'err');
 						}
 						
 					});
@@ -264,7 +308,7 @@ exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callba
 				else
 				{
 					connection.release();
-					console.log('ERR: COULD NOT CONNECT TO DB');
+					callback('ERR: COULD NOT INSERT SCENARIO', 'err');
 				}
 				
 			});
@@ -286,6 +330,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 
 	var currID = -1;
 	var currScenID = -1;
+	var currTimeComplete = -1;
 	var totalTime = 0;
 	var i = 0;
 
@@ -294,7 +339,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		
 		if(currID == str[i].USERID)
 		{
-			if(currScenID == str[i].SCENARIOID)
+			if(currScenID == str[i].SCENARIOID && currTimeComplete == str[i].TIME_COMPLETE)
 			{
 				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
@@ -307,6 +352,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 				retString += ']},{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
 				retString += '"TITLE": "' + str[i].TITLE + '",';
 				retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
+				retString += '"TIME_COMPLETE": "' + str[i].TIME_COMPLETE + '",';
 
 				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
@@ -314,6 +360,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 				currScenID = str[i].SCENARIOID;
+				currTimeComplete = str[i].TIME_COMPLETE;
 			}
 		}
 		else
@@ -332,6 +379,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 			retString += '"SCENARIOS": [{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
 			retString += '"TITLE": "' + str[i].TITLE + '",';
 			retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
+			retString += '"TIME_COMPLETE": "' + str[i].TIME_COMPLETE + '",';
 
 			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 			retString += '"PROMPT": "' + str[i].PROMPT + '",';
@@ -340,6 +388,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 			
 			currID = str[i].USERID;
 			currScenID = str[i].SCENARIOID;
+			currTimeComplete = str[i].TIME_COMPLETE;
 
 		}
 
