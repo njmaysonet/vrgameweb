@@ -1,0 +1,18 @@
+.login-card{
+    width: 40%;
+}
+.login-card-container{
+    margin: 50px auto;
+}
+.username
+{
+   font-size: 16px; 
+}
+.password{
+    font-size: 16px;
+}
+.button
+{
+    background-color: #607D8B;
+    color: white;
+}

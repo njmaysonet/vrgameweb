@@ -4,7 +4,7 @@ import {Http, Response} from '@angular/http';
 import {OnInit} from '@angular/core';
 
 import {ScoreboardService} from './scoreboard.service';
-import {Player} from './player';
+import {Player} from '../models/player';
 
 @Component({
     selector: 'scoreboard-component',

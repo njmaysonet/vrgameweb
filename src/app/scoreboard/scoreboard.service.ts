@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
-import { Player } from './player'
+import { Player } from '../models/player'
 
 @Injectable()
 export class ScoreboardService{

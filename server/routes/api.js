@@ -5,10 +5,12 @@ var dbConn = require('./dbConn');
 var mysql = require('mysql');
 var http = require('http').Server(express);
 var io = require('socket.io')(http);
+var auth = require('./auth.js');
+var passport = require('passport');
 
 //API Listing
 router.get('/', (req, res) => {
-    res.send('api works 3');
+    res.send('API Running.');
 });
 
 //gets all user info where userid = id;
@@ -269,6 +271,10 @@ router.post('/insertUser', function(req, res){
 		});
 	}
 });
+
+router.post('/local', function(req, res, next){
+	passport.authenticate
+})
 
 module.exports = router;
 

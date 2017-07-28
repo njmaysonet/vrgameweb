@@ -9,7 +9,7 @@ import {HomeComponent} from '../home/home.component';
 import {DownloadsComponent} from '../downloads/downloads.component';
 import {ScoreboardComponent} from '../scoreboard/scoreboard.component';
 import {AboutComponent} from '../about/about.component';
-import {LoginComponent} from '../auth/login.component';
+import {LoginComponent} from '../login/login.component';
 
 //Array containing routing information and directives
 const routes: Routes = [

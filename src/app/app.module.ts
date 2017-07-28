@@ -9,8 +9,6 @@ import { FlexLayoutModule} from '@angular/flex-layout';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 //ngx-bootstrap modules
-//import { AlertModule } from 'ngx-bootstrap';
-//import { DataTableModule } from 'angular-2-data-table';
 
 //Need hammerjs as dependency for some aspects of angular-material
 import 'hammerjs';
@@ -23,7 +21,9 @@ import { DownloadsComponent} from './downloads/downloads.component';
 import { AppMaterialModule } from './app-material.module';
 import { ScoreboardComponent} from './scoreboard/scoreboard.component';
 import { AboutComponent} from './about/about.component';
-import { LoginComponent} from './auth/login.component';
+import { LoginComponent} from './login/login.component';
+import { AuthGuard } from './auth/auth.guard';
+import { AuthService } from './auth/auth.service';
 //import { ScoreboardRemote} from './scoreboard/scoreboard.remote';
 
 @NgModule({
