@@ -272,8 +272,19 @@ router.post('/insertUser', function(req, res){
 	}
 });
 
-router.post('/local', function(req, res, next){
-	passport.authenticate
+router.post('/login', function(req, res, next){
+	passport.authenticate('local-login'),
+	function(req,res){
+		res.json({
+			id: req[0].USERID, 
+			username: req[0].USERNAME
+		})
+	}
+})
+
+router.get('/logout', function(req,res,next){
+	req.logout();
+	req.message("Logged out.");
 })
 
 module.exports = router;

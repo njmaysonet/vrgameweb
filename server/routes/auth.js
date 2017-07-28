@@ -2,10 +2,11 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var dbConn = require('./dbConn.js');
+var mysql = require('mysql');
 
 module.exports = function(passport){
     passport.serializeUser(function(user,done){
-        done(null, user.id)
+        done(null, user.USERID);
     });
 
     passport.deserializeUser(function(id,done){
@@ -33,11 +34,11 @@ module.exports = function(passport){
                         password: password
                     };
 
-                    var insertQuery = "INSERT INTO USERS (username, password) values (?,?)";
+                    var insertQuery = "INSERT INTO USERS values (0,?,null,null,null,?,?,?,now(),0)";
 
-                    dbConn().queryDB(insertQuery, function(rows,err)
+                    dbConn().queryDB(mysql.format(insertQuery,newUser), function(rows,err)
                     {
-                        newUser.id = rows.insertId;
+                        newUser.id = rows[0].USERID;
                         return done(null, newUser);
                     });
             }
@@ -61,7 +62,7 @@ module.exports = function(passport){
                 return done(null, false, req.flash('loginMessage', 'No user found.'));
             }
 
-            if(password.localeCompare(rows[0].password))
+            if(password.localeCompare(rows[0].PASSWORD))
                 return done(null, false, req.flash('loginMessage', 'Incorrect password.'));
             
             return done(null, rows[0]);
