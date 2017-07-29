@@ -427,6 +427,62 @@ router.post('/insertUser', (req, res) => {
 	}
 });
 
+//updates a user's info
+router.post('/updateUser', (req, res) => {
+
+	//gets all possible things to update for the user
+	var inserts = [req.body.USERID, req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
+				   req.body.PASSWORD, req.body.PROFILE_PIC, req.body.BIRTHDAY, req.body.ADMIN_STATUS];
+
+	//sets up things to update
+	var sqlComms = [' USERNAME = ?', ' FIRSTNAME = ?', ' LASTNAME = ?', ' EMAIL_ADDR = ?', ' PASSWORD = ?',
+					' PROFILE_PIC = ?', ' BIRTHDAY = ?', ' ADMIN_STATUS = ?'];
+
+	var i = 1;
+	var count = 0;
+	var newInserts = [];
+
+	//start query
+	var inQuery = 'UPDATE USERS SET ';
+
+	//loop through each inserts. if they're not undefined, update them.
+	for(i = 1; i < inserts.length; i++)
+	{
+		if(inserts[i-1] != undefined)
+		{
+			//if we have more than one thing to update, use a comma to separate them
+			if(count > 0)
+			{
+				inQuery += ',';
+			}
+			//add the query string to the query
+			inQuery += sqlComms[i];
+			//add the value to a separate array
+			newInserts.push(inserts[i-1]);
+			//increment count
+			count++;
+		}
+	}
+
+	//finish query to only update users with the specified id
+	inQuery += ' WHERE USERID = ?';
+	newInserts.push(inserts[0]);
+
+	//if we're updating at least one field, query to update it/them
+	if(count > 0)
+	{
+		dbConn.queryDB(mysql.format(inQuery, newInserts), function(val, err){
+
+			if(err) {
+				res.send(val);
+			}
+			else {
+				res.send("successfully updated user");
+			}
+		});
+	}
+});
+
 //sends the player's data from the game to the db
 router.post('/playerdata', (req, res) => {
 	//gets params
@@ -525,7 +581,7 @@ router.post('/addmembers', (req, res) => {
 	else
 	{
 		//parses the userids into a useable array
-		members = JSON.parse(req.body.userids);
+		members = JSON.parse(req.body.userid);
 
 		//prepares to insert each userid by creating an array with arrays containing the insert values
 		var inserts = [];
@@ -549,6 +605,74 @@ router.post('/addmembers', (req, res) => {
 		});
 	}
 });
+
+//removes members from a group. can remove however many id's are passed to it
+router.post('/removemembers', (req, res) => {
+
+	var members;
+	//get group to insert into
+	var groupid = req.body.groupid;
+	var inQuery = "DELETE FROM GROUP_MEMBERS WHERE GROUPID = ? AND  USERID = ?";
+
+	if(groupid == undefined || req.body.userid == undefined)
+	{
+		res.send('ERR: MISSING PARAMS');
+	}
+	else
+	{
+		//parses the userids into a useable array
+		members = JSON.parse(req.body.userid);
+
+		var inserts;
+
+		inserts.push(groupid);
+		inserts.push(members[0]);
+
+		var i = 0;
+		for(i = 1; i < members.length; i++)
+		{
+			inQuery += ' OR USERID = ?';
+			inserts.push(members[i]);
+		}		
+
+		//remove any users with an id mentioned before
+		dbConn.queryMulti(inQuery, inserts, function(val, err){
+			if(err) {
+				res.send('ERR: FAILED TO ADD MEMBERS');
+			}
+			else {
+				res.send('success');
+			}	
+		});
+	}
+});
+
+//removes all members from a group. 
+router.post('/removeallmembers', (req, res) => {
+
+
+	//get group to insert into
+	var groupid = req.body.groupid;
+	var inQuery = "DELETE FROM GROUP_MEMBERS WHERE GROUPID = ?";
+
+	if(groupid == undefined)
+	{
+		res.send('ERR: MISSING PARAMS');
+	}
+	else
+	{	
+		//removes all users from the group
+		dbConn.queryMulti(inQuery, inserts, function(val, err){
+			if(err) {
+				res.send('ERR: FAILED TO ADD MEMBERS');
+			}
+			else {
+				res.send('success');
+			}	
+		});
+	}
+});
+
 
 
 
