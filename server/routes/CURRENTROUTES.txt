@@ -6,9 +6,24 @@ Get requests
 	- /scenario: scenarioid => All info in SCENARIOS table with scenarioid
 	- /scenarioscores: scenarioid => Userid's, Usernames, and Scores from each player's most recent play on that scenario
 	- /scenarioresponses: scenarioid => get info regarding the number of users who answered each answer
-	
+	- /getgroupmembers: groupid => gets all group members in the group
+	- /groupresponses: groupid + scenarioid => gets tally of number of users that selected each answer for a group on a scenario
+	- /groupscores: groupid + scenarioid (export) => gets scores for each groupmember in a scenario (TESTING: Excel Export)
+	- /groupexceldata (WIP): [groupid] + [scenarioid] => combines groupscores and groupresponses and exports the data in a excel spreadsheet
+						   - Can define multiple groups and what scenario to check for each group (separate sheet made for each group)
 Post requests
 	- /insertculture: creates new Culture in CULTURES table
 	- /insertUser: creates new User in USERS table
+	- /updateUser: update's a user's info based on what's passed in. (note: still need to check)
 	- /playerdata: stores user responses in a scenario (game)
 	- /insertscenario: creates new scenario using JSON file.
+	- /creategroup: creator (userid) + name: creates a new group with name name
+	- /addmembers: [userid] => adds members into the group (Need to check for errs; if one user isn't in the whole thing fails)
+	- /removemembers: [userid] => removes members with userid's passed in 
+	- /removeallmembers: removes all members in a group
+
+TODO:
+	- deleteGroup
+	- updateGroup
+	- finish formatting groupexceldata
+	- final checks for all methods

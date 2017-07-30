@@ -5,6 +5,9 @@ var dbConn = require('./dbConn');
 var mysql = require('mysql');
 var http = require('http').Server(express);
 var io = require('socket.io')(http);
+var exceljs = require('exceljs');
+var tempy = require('tempy');
+var excelExports = require('./excelExport');
 
 var testjson = require('./scenairo.json');
 
@@ -333,7 +336,7 @@ router.get('/groupresponses', (req, res) => {
 router.get('/groupscores', (req, res) => {
 
 	//gets the params
-	var inserts = [req.query.scenid, req.query.groupid];
+	var inserts = [req.query.scenid, req.query.groupid, req.query.savedata];
 
 	//checks to make sure all of the params were sent
 	if(inserts[0] == undefined || inserts[1] == undefined)
@@ -352,11 +355,121 @@ router.get('/groupscores', (req, res) => {
 			}
 			else {
 				//format accordingly
-				res.send(JSON.stringify(val));
+				if(req.query.savedata == 'true')
+				{
+					excelExports.exportGroupScores(val, function(workbook, err)
+					{
+						if(!err)
+						{
+							var tempFilePath = tempy.file({extension: '.xlsx'});
+							workbook.xlsx.writeFile(tempFilePath).then(function() {
+								console.log('file is written');
+								res.sendFile(tempFilePath, function(err){
+									console.log('---------- error downloading file: ' + err);
+								});
+							});
+						}
+					});
+				}
+				else
+				{
+					res.send(JSON.stringify(val));
+				}
 			}
 		});
 	}
 });
+
+router.get('/groupexceldata', (req, res) => {
+	var groups = [], scenarios = [], inserts = [];
+	var inQuery = '';
+	var responsesQuery = '';
+
+	if(req.query.groups == undefined || req.query.scenarios == undefined)
+	{
+		res.send('ERR: MISSING PARAMETERS');
+	}
+	else
+	{
+		groups = JSON.parse(req.query.groups);
+		scenarios = JSON.parse(req.query.scenarios);
+
+		
+		if(scenarios.length > 1 && groups.length == scenarios.length)
+		{
+			inQuery = 'SELECT USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE (SCENARIOID = ? AND GROUPID = ?)';
+			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE (SCENARIOID = ? AND GROUPID = ?)';
+			inserts.push(scenarios[0]);
+			insert.push(groups[0]);
+
+			for(var i = 1; i < groups.length; i++)
+			{
+				inQuery += 'OR (SCENARIOID = ? AND GROUPID = ?) ';
+				responsesQuery += 'OR (SCENARIOID = ? AND GROUPID = ?) '
+				inserts.push(scenarios[i]);
+				insert.push(groups[i]);
+			}
+
+			inQuery += 'AND MOST_RECENT = 1 GROUP BY GROUPID, USERID';
+			responsesQuery += 'AND MOST_RECENT = 1 GROUP BY QUESTIONID, ANSWERID, GROUPID';
+			
+		}
+		else
+		{
+			inQuery = 'SELECT USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
+			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
+			inserts.push(scenarios[0]);
+			inserts.push(groups[0]);
+
+			
+
+			for(var i = 1; i < groups.length; i++)
+			{
+				inQuery += ' OR GROUPID = ?';
+				responsesQuery += ' OR GROUPID = ?';
+				inserts.push(groups[i]);
+
+			}
+
+
+			inQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, USERID';
+			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY QUESTIONID, ANSWERID, GROUPID';
+
+		}
+
+		console.log('trying to get scores, query: ' + inQuery);
+
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+			if(err) {
+				res.send('ERR: DB FAIL');
+			}
+			else {
+				console.log('now to get answers, query: ' + responsesQuery);
+				dbConn.queryDB(mysql.format(responsesQuery, inserts), function(resVal, err){
+					if(err) {
+						res.send('ERR: DB FAIL');
+					}
+					else {
+						excelExports.exportData(val, resVal, function(workbook, err)
+						{
+							if(!err)
+							{
+								var tempFilePath = tempy.file({extension: '.xlsx'});
+								workbook.xlsx.writeFile(tempFilePath).then(function() {
+									console.log('file is written');
+									res.sendFile(tempFilePath, function(err){
+										console.log('---------- error downloading file: ' + err);
+									});
+								});
+							}
+						});
+					}
+				});
+			}
+
+		});
+	}
+})
 
 
 //inserts culture into the db
@@ -673,6 +786,35 @@ router.post('/removeallmembers', (req, res) => {
 	}
 });
 
+router.get('/exceltest', (req, res) => {
+	
+	try {
+		var workbook = new exceljs.Workbook();
+		var worksheet = workbook.addWorksheet('My Sheet');
+
+		worksheet.columns = [
+			{ header: 'Id', key: 'id', width: 10 },
+			{ header: 'Name', key: 'name', width: 32 },
+			{ header: 'D.O.B.', key: 'DOB', width: 10 }
+		];
+		worksheet.addRow({id: 1, name: 'John Doe', dob: new Date(1970,1,1)});
+		worksheet.addRow({id: 2, name: 'Jane Doe', dob: new Date(1965,1,7)});
+
+		var tempFilePath = tempy.file({extension: '.xlsx'});
+		workbook.xlsx.writeFile(tempFilePath).then(function() {
+			console.log('file is written');
+			res.sendFile(tempFilePath, function(err){
+				console.log('---------- error downloading file: ' + err);
+			});
+		});
+		
+		//res.send('yea');
+	} catch(err) {
+		console.log('OOOOOOO this is the error: ' + err);
+		//res.send('err');
+	}
+
+});
 
 
 
