@@ -1,7 +1,7 @@
 Get requests
-	- /user: userid => All info in USERS table with scenarioid
+	- /user: userid/username => All info in USERS table with scenarioid
 	- /gameuser: username/email => userid for user with username/email
-	- /userinfo: userid => specific info about user (incomplete/need to redo)
+	- /userinfo: userid/username => specific info about user (incomplete/need to redo)
 	- /multiuser: userid(s) => All info in USERS table for each user
 	- /scenario: scenarioid => All info in SCENARIOS table with scenarioid
 	- /scenarioscores: scenarioid => Userid's, Usernames, and Scores from each player's most recent play on that scenario

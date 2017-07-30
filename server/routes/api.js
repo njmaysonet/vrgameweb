@@ -21,19 +21,33 @@ router.get('/', (req, res) => {
 router.get('/user', (req, res) => {
 	
 	var userid = req.query.userid;
+	var username = req.query.username;
+	var inQuery = 'SELECT * FROM USERS WHERE';
+	var inserts = [];
+
 
 	//check to see if params are there
-	if(userid == undefined)
+	if(userid == undefined || username == undefined)
 	{
 		res.send('ERROR: NO USERID PARAMETER');
 	}
 	else
 	{
 		//base query 
-		var inQuery = "SELECT * FROM USERS WHERE USERID = ?";
+		if(userid == undefined)
+		{
+			inserts.push(username);
+			inQuery += ' USERNAME = ?';
+		}
+		else
+		{
+			inserts.push(userid);
+			inQuery += ' USERID = ?';
+		}
+		
 
 		//searches db for user with userid = id. 
-		dbConn.queryDB(mysql.format(inQuery, userid), function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 
 			//if none was found return err message, otherwise JSONify data and return
 			if(err) {
@@ -86,27 +100,40 @@ router.get('/gameuser', (req, res) =>{
 //returns all relevant user info where userid = id
 router.get('/userinfo', (req, res) => {
 	
-	var userid = req.query.userid;
+	var userid = req.query.userid, username = req.query.username;
 	var history = req.query.history;
+	var inserts = [];
 
 	//check to see if params are there
-	if(userid == undefined)
+	if(userid == undefined && username == undefined)
 	{
-		res.send('ERROR: NO USERID PARAMETER');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
 		//gross query
 		var inQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE, TIME_COMPLETE, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
-		" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
+		" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE";
 		
+		if(userid == undefined)
+		{
+			inserts.push(username);
+			inQuery += ' USERNAME = ?';
+		}
+		else
+		{
+			inserts.push(userid);
+			inQuery += ' USERID = ?';
+		}
+		
+
 		if(history == 'true')
 		{
 			inQuery += " AND MOST_RECENT = 1";
 		}
 
 		//searches db to see if userid = id exists with game data.
-		dbConn.queryDB(mysql.format(inQuery, userid), function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 
 			//if there was an error make sure it wasn't becasue the user just hasn't played a scenario
 			if(err) {
@@ -146,7 +173,7 @@ router.get('/userinfo', (req, res) => {
 router.get('/multiuser', (req, res) => {
 
 	//verifies that it was sent data
-	if(req.query.userid == undefined)
+	if(req.query.userid == undefined && req.query.username)
 	{
 		res.send('ERROR: NO USERID PARAMETER');
 	}
@@ -160,9 +187,7 @@ router.get('/multiuser', (req, res) => {
 		//if we were sent data, build a query that searches for each index.
 		if(arr.length > 1)
 		{
-			var i;
-
-			for(i = 1; i < arr.length; i++)
+			for(var i = 1; i < arr.length; i++)
 			{
 				if(i+1 < arr.length)
 				{
@@ -170,9 +195,19 @@ router.get('/multiuser', (req, res) => {
 				}
 			}
 		}
-		else
+
+		//repeates above process for usernames
+		arr = JSON.parse(req.query.username);
+
+		if(arr.length > 1)
 		{
-			res.send('ERROR: NO USERS SELECTED');
+			for(var i = 1; i < arr.length; i++)
+			{
+				if(i+1 < arr.length)
+				{
+					inQuery += ' OR USERNAME = ?';
+				}
+			}
 		}
 
 		//query on the data by inserting the arr into the query
@@ -363,7 +398,6 @@ router.get('/groupscores', (req, res) => {
 						{
 							var tempFilePath = tempy.file({extension: '.xlsx'});
 							workbook.xlsx.writeFile(tempFilePath).then(function() {
-								console.log('file is written');
 								res.sendFile(tempFilePath, function(err){
 									console.log('---------- error downloading file: ' + err);
 								});
@@ -397,31 +431,29 @@ router.get('/groupexceldata', (req, res) => {
 		
 		if(scenarios.length > 1 && groups.length == scenarios.length)
 		{
-			inQuery = 'SELECT USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE (SCENARIOID = ? AND GROUPID = ?)';
-			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE (SCENARIOID = ? AND GROUPID = ?)';
+			inQuery = 'SELECT USERNAME, USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE ((SCENARIOID = ? AND GROUPID = ?)';
+			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE ((SCENARIOID = ? AND GROUPID = ?)';
 			inserts.push(scenarios[0]);
-			insert.push(groups[0]);
+			inserts.push(groups[0]);
 
 			for(var i = 1; i < groups.length; i++)
 			{
-				inQuery += 'OR (SCENARIOID = ? AND GROUPID = ?) ';
-				responsesQuery += 'OR (SCENARIOID = ? AND GROUPID = ?) '
+				inQuery += ' OR (SCENARIOID = ? AND GROUPID = ?)';
+				responsesQuery += ' OR (SCENARIOID = ? AND GROUPID = ?)'
 				inserts.push(scenarios[i]);
-				insert.push(groups[i]);
+				inserts.push(groups[i]);
 			}
 
-			inQuery += 'AND MOST_RECENT = 1 GROUP BY GROUPID, USERID';
-			responsesQuery += 'AND MOST_RECENT = 1 GROUP BY QUESTIONID, ANSWERID, GROUPID';
+			inQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, SCENARIOID, USERID';
+			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, QUESTIONID, ANSWERID';
 			
 		}
 		else
 		{
-			inQuery = 'SELECT USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
+			inQuery = 'SELECT USERNAME, USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
 			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
 			inserts.push(scenarios[0]);
 			inserts.push(groups[0]);
-
-			
 
 			for(var i = 1; i < groups.length; i++)
 			{
@@ -431,26 +463,22 @@ router.get('/groupexceldata', (req, res) => {
 
 			}
 
-
-			inQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, USERID';
-			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY QUESTIONID, ANSWERID, GROUPID';
-
+			inQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, SCENARIOID, USERID';
+			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, QUESTIONID, ANSWERID';
 		}
-
-		console.log('trying to get scores, query: ' + inQuery);
 
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 			if(err) {
 				res.send('ERR: DB FAIL');
 			}
 			else {
-				console.log('now to get answers, query: ' + responsesQuery);
 				dbConn.queryDB(mysql.format(responsesQuery, inserts), function(resVal, err){
 					if(err) {
 						res.send('ERR: DB FAIL');
 					}
 					else {
-						excelExports.exportData(val, resVal, function(workbook, err)
+						//console.log(JSON.stringify(val) + ' ' + JSON.stringify(resVal));
+						excelExports.exportData2(val, resVal, function(workbook, err)
 						{
 							if(!err)
 							{
