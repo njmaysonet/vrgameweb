@@ -418,83 +418,147 @@ router.get('/groupexceldata', (req, res) => {
 	var groups = [], scenarios = [], inserts = [];
 	var inQuery = '';
 	var responsesQuery = '';
+	var userQuery = '';
 
+	//checks to make sure we have both groups and scenarios to query
 	if(req.query.groups == undefined || req.query.scenarios == undefined)
 	{
 		res.send('ERR: MISSING PARAMETERS');
 	}
 	else
 	{
+		//parse the groups and scenarios
 		groups = JSON.parse(req.query.groups);
 		scenarios = JSON.parse(req.query.scenarios);
 
-		
+		//if we have multiple scenarios and groups, pepare the query by grouping the two together; should be the one used most of the time
 		if(scenarios.length > 1 && groups.length == scenarios.length)
 		{
+			//inQuery: get's the user's score and other important data
 			inQuery = 'SELECT USERNAME, USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE ((SCENARIOID = ? AND GROUPID = ?)';
+			//responsesQuery: gets the number of times an answer was selected + question info
 			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE ((SCENARIOID = ? AND GROUPID = ?)';
+			//userQuery: gets all of the user's data, including each answer they selected
+			userQuery = 'SELECT USERNAME, USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE ((SCENARIOID = ? AND GROUPID = ?)';
+			
+			//push the initial scenario and group
 			inserts.push(scenarios[0]);
 			inserts.push(groups[0]);
 
+			//for each additional group and scenario, add a point to insert the values into each query as well as add the id's to inserts
 			for(var i = 1; i < groups.length; i++)
 			{
 				inQuery += ' OR (SCENARIOID = ? AND GROUPID = ?)';
-				responsesQuery += ' OR (SCENARIOID = ? AND GROUPID = ?)'
+				userQuery += ' OR (SCENARIOID = ? AND GROUPID = ?)';
+				responsesQuery += ' OR (SCENARIOID = ? AND GROUPID = ?)';
 				inserts.push(scenarios[i]);
 				inserts.push(groups[i]);
 			}
 
+			//finish the queries
 			inQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, SCENARIOID, USERID';
-			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, QUESTIONID, ANSWERID';
+		    userQuery += ') AND MOST_RECENT = 1 ORDER BY GROUPID, SCENARIOID, USERID, QUESTIONID, ANSWERID';
+			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, SCENARIOID, QUESTIONID, ANSWERID';
 			
 		}
+		//otherwise if we only have one scenario, query on the one scenario for each group
 		else
 		{
+			//same as above, just slightly different queries
 			inQuery = 'SELECT USERNAME, USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, SUM(SCORE) AS USER_SCORE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
 			responsesQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
+			userQuery = 'SELECT USERNAME, USERID, FIRSTNAME, LASTNAME, TIME_COMPLETE, TIME_PLAYED, SCENARIOID, TITLE, MAX_SCORE, GROUPID, GROUP_NAME FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN GROUPS NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND (GROUPID = ?';
 			inserts.push(scenarios[0]);
 			inserts.push(groups[0]);
 
 			for(var i = 1; i < groups.length; i++)
 			{
 				inQuery += ' OR GROUPID = ?';
+				userQuery += ' OR GROUPID = ?';
 				responsesQuery += ' OR GROUPID = ?';
 				inserts.push(groups[i]);
 
 			}
 
 			inQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, SCENARIOID, USERID';
-			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, QUESTIONID, ANSWERID';
+			userQuery += ') AND MOST_RECENT = 1 ORDER BY GROUPID, SCENARIOID, USERID, QUESTIONID, ANSWERID';
+			responsesQuery += ') AND MOST_RECENT = 1 GROUP BY GROUPID, SCENARIOID, QUESTIONID, ANSWERID';
 		}
 
+		//query for the user scores and data
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
+
 			if(err) {
-				res.send('ERR: DB FAIL');
+				res.send('ERR: COULD NOT FIND USER SCORES');
 			}
 			else {
+				//if we succeed, query to get the counts for the questions
 				dbConn.queryDB(mysql.format(responsesQuery, inserts), function(resVal, err){
+
 					if(err) {
-						res.send('ERR: DB FAIL');
+						res.send('ERR: COULD NOT GET COUNTS');
 					}
 					else {
-						//console.log(JSON.stringify(val) + ' ' + JSON.stringify(resVal));
-						excelExports.exportData2(val, resVal, function(workbook, err)
-						{
-							if(!err)
-							{
-								var tempFilePath = tempy.file({extension: '.xlsx'});
-								workbook.xlsx.writeFile(tempFilePath).then(function() {
-									console.log('file is written');
-									res.sendFile(tempFilePath, function(err){
-										console.log('---------- error downloading file: ' + err);
-									});
+						//if we succeed, query to get the user data + individual answers
+						dbConn.queryDB(mysql.format(userQuery, inserts), function(userVal, err){
+
+							if(err){
+								res.send('ERR: COULD NOT GET USER DATA');
+							}
+							//if we succeed, we need the question/answer info for the scenarios that were actually played
+							else{
+								//gets the question + answer info from each scenario
+								inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE FROM QUESTIONS NATURAL JOIN ANSWERS WHERE SCENARIOID = ?';
+						
+								//holds the inserts for the query; init and set index = 1
+								var scenarioInserts = [];
+								scenarioInserts.push(val[0].SCENARIOID);
+								var scenIndex = 1;
+
+								//loop through the initial user query
+								for(var i = 1; i < val.length; i++)
+								{
+									//if we've found a new scenario, add it to our inserts and extend the query
+									if(val[i].SCENARIOID != scenarioInserts[scenIndex-1])
+									{
+										scenarioInserts.push(val[i].SCENARIOID);
+										scenIndex++;
+										inQuery += ' OR SCENARIOID = ?';
+									}	
+								}
+
+								inQuery += ' ORDER BY SCENARIOID';
+
+								//query for the full scenario info
+								dbConn.queryDB(mysql.format(inQuery, scenarioInserts), function(answerVal, err){
+									
+									if(err) {
+										res.send('ERR: COULD NOT GET FULL SCENARIO INFO');
+									}
+									//if we succeed we have everything we need, so send it to be transformed into a .xlsx
+									else {
+										excelExports.exportDataFull(val, resVal, answerVal, userVal, function(workbook, err)
+										{
+											if(!err)
+											{
+												//get temporary path to prevent storage on db
+												var tempFilePath = tempy.file({extension: '.xlsx'});
+												//create the file and then send it to the user
+												workbook.xlsx.writeFile(tempFilePath).then(function() {
+													
+													res.sendFile(tempFilePath, function(err){
+														console.log('ERR: SENDING FILE');
+													});
+												});
+											}
+										});
+									}
 								});
 							}
-						});
+						})
 					}
 				});
 			}
-
 		});
 	}
 })
