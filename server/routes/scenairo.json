@@ -1,0 +1,203 @@
+
+{
+	"TITLE": "Puerto Rican Restaurant4",
+	"DATE_CREATED": "2017-07-24",
+	"LOCATION": "Puerto Rico",
+	"SUMMARY": "Practice ordering food at La Casa de mi Abuela and speaking with a waiter!",
+	"MAX_SCORE": "50",
+	"GOALS" : [
+		{
+			"GOAL": "Speaking politely with staff"
+		},
+		{
+			"GOAL": "Tipping Properly"
+		}
+	],
+	"AVAILABLE_LANGUANGES" : [
+		{
+			"LANGUAGE": "English"
+		}
+	],
+
+	
+	"QUESTIONS": [
+		{
+			"PROMPT": "What you would like to drink?",
+			"ANSWERS": [
+				{
+					"ANSWER": "Water, please!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				},
+				{
+					"ANSWER": "Soda, please!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				},
+				{
+					"ANSWER": "Juice, please!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				},
+				{
+					"ANSWER": "Tea, please!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				}
+			]
+		},
+		{
+			"PROMPT": "What would you like to eat?",
+			"ANSWERS": [
+				{
+					"ANSWER": "Yes, I'll take the arroz con pollo!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				},
+				{
+					"ANSWER": "No thank you, I'll have the asopao instead!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				},
+				{
+					"ANSWER": "No thank you, I'll have the pastelon instead!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				},
+				{
+					"ANSWER": "No thank you, I'll have the picadillo instead!",
+					"SCORE": "0",
+					"REASONING": "N/A"
+				}
+			]
+		},
+		{
+			"PROMPT": "How would you respond if your meal will take longer than expected?",
+			"ANSWERS": [
+				{
+					"ANSWER": "No problem!",
+					"SCORE": "10",
+					"REASONING": "It is commendable to show patience and understanding when your meal is taking longer to prepare than you had hoped for."
+				},
+				{
+					"ANSWER": "I don't have too much time, is it possible for it to come any sooner?",
+					"SCORE": "7",
+					"REASONING": "It is commendable to show patience and understanding when your meal is taking longer to prepare than you had hoped for."
+				},
+				{
+					"ANSWER": "Aww okay...are you sure it'll take that long?",
+					"SCORE": "3",
+					"REASONING": "This is somewhat of a rude response, although not incredibly insulting."
+				},
+				{
+					"ANSWER": "That's crazy! You better have that order ready in 10 minutes!",
+					"SCORE": "0",
+					"REASONING": "You are being ridiculously mean by insulting Manuel and making unrealistic demands of your meal!"
+				}
+			]
+		},
+		{
+			"PROMPT": "How do you respond when you're given the incorrect meal?",
+			"ANSWERS": [
+				{
+					"ANSWER": "Excuse me, but this isn't what I ordered.",
+					"SCORE": "10",
+					"REASONING": "It is commendable to show politeness even when you’re not the one at fault."
+				},
+				{
+					"ANSWER": "I didn't order this.",
+					"SCORE": "5",
+					"REASONING": "You weren’t insulting, but you could have probably said that a bit more politely."
+				},
+				{
+					"ANSWER": "You messed up my order!",
+					"SCORE": "2",
+					"REASONING": "While it’s understandable that you’re upset with how your order turned out, this is a rude response!"
+				},
+				{
+					"ANSWER": "This isn't what I ordered. I demand a free meal!",
+					"SCORE": "0",
+					"REASONING": "You are being incredibly rude here and demanding a free meal will not get you anywhere!"
+				}
+			]
+		},
+		{
+			"PROMPT": "Is everything to your satisfaction?",
+			"ANSWERS": [
+				{
+					"ANSWER": "Yes, everything is delicious, thanks!",
+					"SCORE": "10",
+					"REASONING": "It is commendable to praise the food that you’ve eaten as well as show gratitude to those who cooked and served it to you."
+				},
+				{
+					"ANSWER": "Yes, it was good.",
+					"SCORE": "9",
+					"REASONING": "It is commendable to praise the food, although it would have been better had you also showed gratitude to Manuel and the cook."
+				},
+				{
+					"ANSWER": "It was okay, but the food was a little overcooked.",
+					"SCORE": "10",
+					"REASONING": "It is commendable to speak your mind politely and not be insulting about it."
+				},
+				{
+					"ANSWER": "No, this is pig swill!",
+					"SCORE": "0",
+					"REASONING": "You are being incredibly rude and disrespectful!"
+				}
+			]
+		},
+		{
+			"PROMPT": "How much would you tip your waiter?",
+			"ANSWERS": [
+				{
+					"ANSWER": "40-50% of your bill",
+					"SCORE": "5",
+					"REASONING": "It is commendable to give a reasonable tip, but you don’t have to spend over the standard norm for the tip."
+				},
+				{
+					"ANSWER": "15-25% of your bill",
+					"SCORE": "10",
+					"REASONING": "It is commendable to praise the food, although it would have been better had you also showed gratitude to Manuel and the cook."
+				},
+				{
+					"ANSWER": "5-10% of your bill",
+					"SCORE": "2",
+					"REASONING": "This is below the standard norm and Manuel’s service deserved a better tip from you."
+				},
+				{
+					"ANSWER": "No tip",
+					"SCORE": "0",
+					"REASONING": "It is customary to leave a tip, so you have been just downright rude and unappreciative!"
+				}
+			]
+		},
+		{
+			"PROMPT": "How do you respond to your waiter's farewell?",
+			"ANSWERS": [
+				{
+					"ANSWER": "Thank you, you too!",
+					"SCORE": "10",
+					"REASONING": "It is commendable to be appreciative of a compliment and pay it back, great job!"
+				},
+				{
+					"ANSWER": "Goodbye!",
+					"SCORE": "9",
+					"REASONING": "It is polite to greet people as you leave, but it would have been better if you had thanked Manuel for his compliment too."
+				},
+				{
+					"ANSWER": "Nod and Wave",
+					"SCORE": "4",
+					"REASONING": "It is polite to greet people as you leave, but it would have been better if you had thanked Manuel for his compliment too."
+				},
+				{
+					"ANSWER": "Walk off without replying",
+					"SCORE": "0",
+					"REASONING": "It is incredibly rude to ignore the waiter and just walk off without any sort of greeting!"
+				}
+			]
+		}
+		
+	]
+}
+
+	
