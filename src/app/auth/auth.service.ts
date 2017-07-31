@@ -1,29 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, Response } from '@angular/http';
+import { Http, Headers, Response, RequestOptions, RequestOptionsArgs } from '@angular/http';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/throw';
+
+import { User } from '../models/user';
  
 @Injectable()
 export class AuthService {
-    public token: string;
- 
-    constructor(private http: Http) {
-        // set token if saved in local storage
-        var currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        this.token = currentUser && currentUser.token;
-    }
+    private loginURL = 'http://localhost:3000/api/login';
+
+    constructor(private http: Http) {}
  
     login(username: string, password: string): Observable<boolean> {
-        return this.http.post('http://localhost:3000/api/auth', JSON.stringify({ username: username, password: password }))
+        return this.http.post(this.loginURL, JSON.stringify({ USERNAME: username, PASSWORD: password }))
             .map((response: Response) => {
-                // login successful if there's a jwt token in the response
-                let token = response.json() && response.json().token;
-                if (token) {
-                    // set token property
-                    this.token = token;
- 
-                    // store username and jwt token in local storage to keep user logged in between page refreshes
-                    localStorage.setItem('currentUser', JSON.stringify({ username: username, token: token }));
+                let user = response.json();
+                if(user)
+                {
+                    // store username in local storage to keep user logged in between page refreshes
+                    localStorage.setItem('currentUser', JSON.stringify({ username: username}));
  
                     // return true to indicate successful login
                     return true;
@@ -36,7 +32,20 @@ export class AuthService {
  
     logout(): void {
         // clear token remove user from local storage to log user out
-        this.token = null;
         localStorage.removeItem('currentUser');
+    }
+
+    signup(username: string, password: string): Observable<boolean>{
+        return this.http.post('http://localhost:3000/api/login', JSON.stringify({USERNAME: username, PASSWORD: password}))
+            .map((res: Response) => {
+                let user = res.json();
+                if(user){
+                    //If user exists return true
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            });
     }
 }

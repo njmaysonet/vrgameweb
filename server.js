@@ -4,6 +4,8 @@ var path = require('path');
 var http = require('http');
 var bodyParser = require('body-parser');
 var passport = require('passport');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 
 //Variables
 var port = process.env.PORT || '3000';
@@ -14,10 +16,6 @@ var app = express();
 //API routes
 var api = require('./server/routes/api');
 
-//Parsers
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-
 //Allow Cross Origin
 app.use(function(req,res,next){
     res.header("Access-Control-Allow-Origin", "*");
@@ -26,16 +24,6 @@ app.use(function(req,res,next){
 
 //Routes
 app.use('/api', api)
-
-//Configuration
-app.configure(function(){
-    app.use(express.cookieParse());
-    app.use(express.bodyParser());
-    app.use(express.session({secret: 'hamboning'}));
-    app.use(passport.initialize());
-    app.use(passport.session());
-    app.use(app.router);
-});
 
 //Static paths
 app.use(express.static(path.join(__dirname,'dist')));
@@ -47,6 +35,34 @@ app.get('*', (req,res) => {
 
 //Set port from environment -- default 3000
 app.set('port', port);
+
+//Configuration of middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(cookieParser());
+app.use(session({
+    secret: 'hamboning',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {secure: true}
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: err
+  });
+});
 
 
 //HTTP Server

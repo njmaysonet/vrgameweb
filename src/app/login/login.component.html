@@ -1,24 +1,32 @@
 <div fxLayout="column" fxLayoutAlign="none center" class="login-card-container">
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
     <md-card class="login-card">
         <md-card-title>
             User Login
         </md-card-title>
         <md-input-container class="username">
-                <input mdInput placeholder="Enter username..." type="username">
+                <input mdInput placeholder="Enter username..." type="username" id="username"
+                    required
+                    [(ngModel)]="model.name" name="username"
+                    #name = "ngModel">
+                    <div [hidden]="name.valid || name.pristine">
+                        Username is required
+                    </div>
             </md-input-container>
             <br>
             <md-input-container class="password">
-                <input mdInput placeholder="Enter password..." type="password">
+                <input mdInput placeholder="Enter password..." type="password" id="password">
             </md-input-container>
             <br>
-        <button md-button class="button">
+        <button md-button class="button" (click)="login()">
             Sign In
         </button>
-        <button md-button class="button">
+        <button md-button class="button" (click)="signup()">
             Create Account
         </button>
         <br>
         <md-card-content>
         </md-card-content>
     </md-card>
+    </form>
 </div>

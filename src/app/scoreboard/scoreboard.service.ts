@@ -9,7 +9,7 @@ import { Player } from '../models/player'
 
 @Injectable()
 export class ScoreboardService{
-    private apiURL = 'http://localhost:3000/api/data';
+    private apiURL = 'http://localhost:3000/api/userinfo';
 
     constructor (private http: Http) {}
 

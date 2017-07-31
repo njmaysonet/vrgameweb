@@ -272,6 +272,8 @@ router.post('/insertUser', function(req, res){
 	}
 });
 
+//Passport Authentication Routes
+
 router.post('/login', function(req, res, next){
 	passport.authenticate('local-login'),
 	function(req,res){
@@ -280,12 +282,19 @@ router.post('/login', function(req, res, next){
 			username: req[0].USERNAME
 		})
 	}
-})
+});
 
-router.get('/logout', function(req,res,next){
+router.get('/logout', function(req,res){
 	req.logout();
-	req.message("Logged out.");
-})
+	res.message("Logged out.");
+});
+
+router.post('/signup', function(req,res){
+	passport.authenticate('local-signup'),
+	function(req,res){
+		res.send("Account successfully created.");
+	}
+});
 
 module.exports = router;
 

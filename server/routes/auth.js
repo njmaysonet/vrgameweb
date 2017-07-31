@@ -54,16 +54,19 @@ module.exports = function(passport){
             passReqToCallback : true
         },
         function(req, username, password, done){
+            username = req.body.username;
+            password = req.body.password;
+            res.send("Entered.");
             dbConn().queryDB("SELECT * FROM USERS WHERE USERNAME =?",[username], function(rows,err){
             if(err)
                 return done(err);
             if(!rows.length)
             {
-                return done(null, false, req.flash('loginMessage', 'No user found.'));
+                return done(null, false, res.json("Error: User not found."));
             }
 
             if(password.localeCompare(rows[0].PASSWORD))
-                return done(null, false, req.flash('loginMessage', 'Incorrect password.'));
+                return done(null, false, res.json("Error: Incorrect password."));
             
             return done(null, rows[0]);
         });
