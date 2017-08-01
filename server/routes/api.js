@@ -397,25 +397,7 @@ router.get('/groupscores', (req, res) => {
 			}
 			else {
 				//format accordingly
-				if(req.query.savedata == 'true')
-				{
-					excelExports.exportGroupScores(val, function(workbook, err)
-					{
-						if(!err)
-						{
-							var tempFilePath = tempy.file({extension: '.xlsx'});
-							workbook.xlsx.writeFile(tempFilePath).then(function() {
-								res.sendFile(tempFilePath, function(err){
-									console.log('---------- error downloading file: ' + err);
-								});
-							});
-						}
-					});
-				}
-				else
-				{
-					res.send('{ "players:"' + JSON.stringify(val) + "}");
-				}
+				res.send('{ "players:"' + JSON.stringify(val) + "}");
 			}
 		});
 	}
@@ -642,8 +624,6 @@ router.post('/insertUser', (req, res) => {
 //updates a user's info
 router.post('/updateUser', (req, res) => {
 
-	console.log('HERE');
-
 	//gets all possible things to update for the user
 	var userId = req.body.USERID;
 	var inserts = [req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
@@ -682,8 +662,6 @@ router.post('/updateUser', (req, res) => {
 	inQuery += ' WHERE USERID = ?';
 	newInserts.push(userId);
 
-	console.log(mysql.format(inQuery, newInserts));
-
 	//if we're updating at least one field, query to update it/them
 	if(count > 0)
 	{
@@ -707,7 +685,7 @@ router.post('/playerdata', (req, res) => {
 	//verifies that all params were passed
 	if(inserts[0] == undefined || inserts[1] == undefined || inserts[2] == undefined || inserts[3] == undefined || inserts[4] == undefined)
 	{
-		console.log('ERROR: MISSING PARAMETER');
+		res.send('ERROR: MISSING PARAMETER');
 	}
 	else
 	{
@@ -737,7 +715,7 @@ router.get('/insertscenario', (req, res) => {
 
 	//query to get the cultureid using the location from the database
 	dbConn.queryDB(mysql.format(inQuery, inData.LOCATION), function(val, err){
-		console.log(val[0].CULTUREID);
+		
 		//if we found the culture, pass it along with the json to insert the rest of the info
 		if(val[0].CULTUREID != undefined)
 		{
@@ -801,7 +779,6 @@ router.post('/addmembers', (req, res) => {
 		//parses the userids into a useable array
 		members = JSON.parse(req.body.userid);
 
-		console.log(members + ' ' + members.length);
 		for(var a = 0; a < members.length; a++)
 		{
 			if(a != 0)
@@ -848,7 +825,6 @@ router.post('/addmembers', (req, res) => {
 						i = 0;
 						while(j < users.length)
 						{
-							console.log(i + ' ' + j);
 							if(i >= val.length || users[j].USERID != val[i].USERID)
 							{
 								inInserts.push([groupid, users[j].USERID]);
@@ -868,8 +844,6 @@ router.post('/addmembers', (req, res) => {
 						inQuery = "INSERT INTO GROUP_MEMBERS(GROUPID, USERID) VALUES ?";
 
 						//inserts each row into the db.
-
-						console.log('valid ids: ' + inInserts);
 
 						if(inInserts.length > 0)
 						{
@@ -929,8 +903,6 @@ router.post('/removemembers', (req, res) => {
 		}		
 
 		inQuery += ')';
-
-		console.log(inserts);
 		//remove any users with an id mentioned before
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 			if(err) {

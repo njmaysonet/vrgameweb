@@ -15,7 +15,7 @@ exports.queryDB = function queryDB(inQuery,  callback)
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
 
-		console.log(inQuery);
+		//console.log(inQuery);
 		if(err)
 		{
 			connection.release();
@@ -57,7 +57,7 @@ exports.queryDBEmpty = function queryDB(inQuery,  callback)
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
 
-		console.log(inQuery);
+		//console.log(inQuery);
 		if(err)
 		{
 			connection.release();
@@ -94,7 +94,7 @@ exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
 
-		console.log(inQuery);
+		//console.log(inQuery);
 		if(err)
 		{
 			connection.release();
@@ -122,7 +122,6 @@ exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
 				}
 				else
 				{
-					console.log('connection problem');
 					callback("ERR", "err");
 				}
 			});
@@ -152,7 +151,7 @@ exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
 			//console.log('QUERY: ' + mysql.format(inQuery, localInserts));
 
 			//tries to insert the user's initial record into the db
-			console.log(mysql.format(inQuery, localInserts));
+
 			connection.query(mysql.format(inQuery, localInserts), function(err, rows, fields){
 				
 				//if we succeeded, insert each response into User_Responses
@@ -269,7 +268,6 @@ exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callba
 		else
 		{
 			//queries the db using inQuery
-			console.log(mysql.format(inQuery, inserts));
 			connection.query(mysql.format(inQuery, inserts), function(err, rows, fields){
 				
 				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
@@ -402,7 +400,92 @@ exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callba
 exports.formatUserJSON = function formatUserJSON(str, callback)
 {
 	var retString = '{"players": [';
-	console.log(str.length);
+
+	var currID = -1;
+	var currScenID = -1;
+	var currTimeComplete = -1;
+	var totalTime = 0;
+	var i = 0;
+
+	//loop through each row recieved from the db
+	for(i = 0; i < str.length; i++)
+	{
+		
+		//if the userid is still the current one, continue with that user's data
+		if(currID == str[i].USERID)
+		{
+			//if the scenairoid and timestamp are the same, then add the new question + answer record
+			if(currScenID == str[i].SCENARIOID && currTimeComplete == str[i].TIME_COMPLETE)
+			{
+				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+				retString += '"PROMPT": "' + str[i].PROMPT + '",';
+				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
+
+			}
+			//otherwise we're either in a new scenario or different playthrough. End the previous scenario and create a new one
+			else
+			{
+				retString += ']},{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
+				retString += '"TITLE": "' + str[i].TITLE + '",';
+				retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
+				retString += '"TIME_COMPLETE": "' + str[i].TIME_COMPLETE + '",';
+
+				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+				retString += '"PROMPT": "' + str[i].PROMPT + '",';
+				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
+
+				currScenID = str[i].SCENARIOID;
+				currTimeComplete = str[i].TIME_COMPLETE;
+			}
+		}
+		//otherwise add a new user (always goes here when i = 0)
+		else
+		{
+			if(i != 0)
+			{
+				retString += '},';
+			}
+			
+
+			retString += '{"USERID": "' + str[i].USERID + '",';
+			retString += '"DATE_JOINED": "' + str[i].DATE_JOINED + '",';
+			retString += '"PROFILE_PIC": "' + str[i].PROFILE_PIC + '",';
+			retString += '"EMAIL_ADDR": "' + str[i].EMAIL_ADDR + '",';
+
+			retString += '"SCENARIOS": [{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
+			retString += '"TITLE": "' + str[i].TITLE + '",';
+			retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
+			retString += '"TIME_COMPLETE": "' + str[i].TIME_COMPLETE + '",';
+
+			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+			retString += '"PROMPT": "' + str[i].PROMPT + '",';
+			retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '"}';
+			
+			//sets current data
+			currID = str[i].USERID;
+			currScenID = str[i].SCENARIOID;
+			currTimeComplete = str[i].TIME_COMPLETE;
+
+		}
+
+		//console.log(i + ": " + retString);
+
+	}
+
+	//finishes the JSON
+	retString += ']]}]}]}';
+
+	callback(retString, null);
+
+}
+
+//TODO
+exports.formatScenarioJSON = function formatScenarioJSON(str, callback)
+{
+	var retString = '{"scenarios": [';
 
 	var currID = -1;
 	var currScenID = -1;
