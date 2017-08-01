@@ -29,7 +29,7 @@ router.get('/user', (req, res) => {
 	//check to see if params are there
 	if(userid == undefined && username == undefined)
 	{
-		res.send('ERROR: NO USERID PARAMETER');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -69,7 +69,7 @@ router.get('/gameuser', (req, res) =>{
 	//sees if username and/or email are defined. If one is query on it, otherwise err.
 	if(req.query.username == undefined && req.query.email == undefined)
 	{
-		res.send('ERR: NO PARAMETERS TO SEARCH FOR');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else if(req.query.email == undefined)
 	{
@@ -178,7 +178,7 @@ router.get('/multiuser', (req, res) => {
 	//verifies that it was sent data
 	if(req.query.userid == undefined && req.query.username)
 	{
-		res.send('ERROR: NO USERID PARAMETER');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else if(req.query.userid == undefined)
 	{
@@ -240,7 +240,7 @@ router.get('/scenario', (req, res) => {
 	//verifies we were sent data
 	if(scenarioid == undefined)
 	{
-		res.send('ERROR: NO SCENARIOID PARAMETER');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -269,7 +269,7 @@ router.get('/scenarioscores', (req, res) => {
 	//verifies that it was passes the parameters
 	if(scenarioid == undefined)
 	{
-		res.send('ERROR: NO SCENARIOID PARAMETER')
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -300,7 +300,7 @@ router.get('/scenarioresponses', (req, res) => {
 	//makes sure that a parameter was actually set
 	if(scenarioid == undefined)
 	{
-		res.send('ERROR: NO SCENARIOID PARAMETER')
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -314,7 +314,7 @@ router.get('/scenarioresponses', (req, res) => {
 			}
 			else {
 				//format accordingly
-				res.send(JSON.stringify(val));
+				res.send(val);
 			}
 		});
 	}
@@ -353,7 +353,7 @@ router.get('/groupresponses', (req, res) => {
 	//gets both the scenario's id as well as the group we're searching for
 	var inserts = [req.query.scenid, req.query.groupid];
 	//query, see line 261 for breakdown. Same thing but now adds groups
-	var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS  NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND MOST_RECENT = 1 AND GROUPID = ? GROUP BY GROUPID, SCENARIOID, QUESTIONID, ANSWERID'
+	var inQuery = 'SELECT SCENARIOID, TITLE, QUESTIONID, PROMPT, ANSWERID, ANSWER, SCORE, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS  NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND MOST_RECENT = 1 AND GROUPID = ? GROUP BY GROUPID, SCENARIOID, QUESTIONID, ANSWERID'
 
 	//verifies that both parameters were passed in
 	if(inserts[0] == undefined || inserts[1] == undefined)
@@ -368,7 +368,10 @@ router.get('/groupresponses', (req, res) => {
 				res.send(val);
 			}
 			else {
-				res.send(JSON.stringify(val));
+				dbConn.formatScenarioJSON(val, function(str, err){
+					if(!err)
+						res.send(str);
+				});
 			}
 		});
 	}
@@ -383,7 +386,7 @@ router.get('/groupscores', (req, res) => {
 	//checks to make sure all of the params were sent
 	if(inserts[0] == undefined || inserts[1] == undefined)
 	{
-		res.send('ERROR: NO SCENARIOID PARAMETER')
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -412,7 +415,7 @@ router.get('/groupexceldata', (req, res) => {
 	//checks to make sure we have both groups and scenarios to query
 	if(req.query.groups == undefined || req.query.scenarios == undefined)
 	{
-		res.send('ERR: MISSING PARAMETERS');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -592,7 +595,7 @@ router.post('/insertUser', (req, res) => {
 	//checks to verify that all necessary fields are filled.
 	if(inserts[0] == undefined || inserts[4] == undefined)
 	{
-		res.send('ERROR: MISSING PARAMETER');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -675,6 +678,10 @@ router.post('/updateUser', (req, res) => {
 			}
 		});
 	}
+	else
+	{
+		res.send('ERROR: NO UPDATES SPECIFIED');
+	}
 });
 
 //sends the player's data from the game to the db
@@ -736,7 +743,7 @@ router.post('/creategroup', (req, res) => {
 	//can't make a group without a creator userid, but if there's no group name we can proceed with the default "newgroup1"
 	if(req.body.CREATOR == undefined)
 	{
-		res.send('ERR: MISSING PARAMS');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else if(req.body.GROUP_NAME == undefined)
 	{
@@ -772,7 +779,7 @@ router.post('/addmembers', (req, res) => {
 
 	if(groupid == undefined || req.body.userid == undefined)
 	{
-		res.send('ERR: MISSING PARAMS');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -883,7 +890,7 @@ router.post('/removemembers', (req, res) => {
 
 	if(groupid == undefined || req.body.userid == undefined)
 	{
-		res.send('ERR: MISSING PARAMS');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
@@ -926,7 +933,7 @@ router.post('/removeallmembers', (req, res) => {
 
 	if(groupid == undefined)
 	{
-		res.send('ERR: MISSING PARAMS');
+		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{	
@@ -945,13 +952,13 @@ router.post('/removeallmembers', (req, res) => {
 
 
 
-
+/*
 process.on('warning', (warning) => {
   console.warn(warning.name);    // Print the warning name
   console.warn(warning.message); // Print the warning message
   console.warn(warning.stack);   // Print the stack trace
 });
-
+*/
 
 
 module.exports = router;

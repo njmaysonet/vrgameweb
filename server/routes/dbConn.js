@@ -487,82 +487,56 @@ exports.formatScenarioJSON = function formatScenarioJSON(str, callback)
 {
 	var retString = '{"scenarios": [';
 
-	var currID = -1;
 	var currScenID = -1;
+	var currQuestionID = -1;
 	var currTimeComplete = -1;
 	var totalTime = 0;
 	var i = 0;
 
-	//loop through each row recieved from the db
 	for(i = 0; i < str.length; i++)
 	{
-		
-		//if the userid is still the current one, continue with that user's data
-		if(currID == str[i].USERID)
+		if(currScenID == str[i].SCENARIOID && currQuestionID == str[i].QUESTIONID)
 		{
-			//if the scenairoid and timestamp are the same, then add the new question + answer record
-			if(currScenID == str[i].SCENARIOID && currTimeComplete == str[i].TIME_COMPLETE)
-			{
-				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
-				retString += '"PROMPT": "' + str[i].PROMPT + '",';
-				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
-				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
-
-			}
-			//otherwise we're either in a new scenario or different playthrough. End the previous scenario and create a new one
-			else
-			{
-				retString += ']},{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
-				retString += '"TITLE": "' + str[i].TITLE + '",';
-				retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
-				retString += '"TIME_COMPLETE": "' + str[i].TIME_COMPLETE + '",';
-
-				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
-				retString += '"PROMPT": "' + str[i].PROMPT + '",';
-				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
-				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
-
-				currScenID = str[i].SCENARIOID;
-				currTimeComplete = str[i].TIME_COMPLETE;
-			}
+			retString += ',{"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"NUMRESPONSES": "' + str[i].NUMRESPONCES + '"}';
 		}
-		//otherwise add a new user (always goes here when i = 0)
+		else if(currScenID == str[i].SCENARIOID)
+		{
+			retString += ']},{"QUESTIONID": "' + str[i].QUESTIONID + '",';
+			retString += '"PROMPT": "' + str[i].PROMPT + '",';
+			retString += '"ANSWERS": [{"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"NUMRESPONSES": "' + str[i].NUMRESPONCES + '"}';
+
+			currQuestionID = str[i].QUESTIONID;
+		}
 		else
 		{
 			if(i != 0)
 			{
 				retString += '},';
 			}
-			
 
-			retString += '{"USERID": "' + str[i].USERID + '",';
-			retString += '"DATE_JOINED": "' + str[i].DATE_JOINED + '",';
-			retString += '"PROFILE_PIC": "' + str[i].PROFILE_PIC + '",';
-			retString += '"EMAIL_ADDR": "' + str[i].EMAIL_ADDR + '",';
-
-			retString += '"SCENARIOS": [{"SCENARIOID": "' + str[i].SCENARIOID  + '",';
+			retString += '{"SCENARIOID": "' + str[i].SCENARIOID + '",';
 			retString += '"TITLE": "' + str[i].TITLE + '",';
-			retString += '"TIME_PLAYED": "' + str[i].TIME_PLAYED + '",';
-			retString += '"TIME_COMPLETE": "' + str[i].TIME_COMPLETE + '",';
-
-			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
+			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID + '",';
 			retString += '"PROMPT": "' + str[i].PROMPT + '",';
-			retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
-			retString += '"ANSWER": "' + str[i].ANSWER + '"}';
-			
-			//sets current data
-			currID = str[i].USERID;
+			retString += '"ANSWERS": [{"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"NUMRESPONSES": "' + str[i].NUMRESPONCES + '"}';
+
 			currScenID = str[i].SCENARIOID;
-			currTimeComplete = str[i].TIME_COMPLETE;
+			currQuestionID = str[i].QUESTIONID;
 
+			//add new scenario
 		}
-
-		//console.log(i + ": " + retString);
-
 	}
 
-	//finishes the JSON
-	retString += ']]}]}]}';
+	retString += ']}]}]}';
 
 	callback(retString, null);
 
