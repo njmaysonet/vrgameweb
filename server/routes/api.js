@@ -8,6 +8,8 @@ var io = require('socket.io')(http);
 var passport = require('passport');
 //var passportConfig = require('./auth.js');
 var LocalStrategy = require('passport-local').Strategy;
+var parser2 = require('body-parser');
+var urlencodedParser = parser2.urlencoded({extended : false});
 
 //API Listing
 router.get('/', (req, res) => {
@@ -280,7 +282,7 @@ passport.serializeUser(function(user,done){
     });
 
 passport.deserializeUser(function(id,done){
-    dbConn.queryDB("SELECT * FROM USERS WHERE USERID = ?",[id],function(rows,err){
+    dbConn.queryDB(mysql.format("SELECT * FROM USERS WHERE USERID = ?", id), function(rows,err){
         done(err,rows[0]);
     });
 });
@@ -290,29 +292,46 @@ passport.use(
 	new LocalStrategy({
 		usernameField: 'username',
 		passwordField: 'password',
-		passReqToCallback : true
+		passReqToCallback : false
 	},
 	function(username, password, done){
 		console.log("Entered signup.");
-		dbConn.queryDB("SELECT * FROM USERS WHERE USERNAME = ?",[username], function(rows,err){
+
+		dbConn.queryDBEmpty(mysql.format("SELECT * FROM USERS WHERE USERNAME = ?", username), function(rows,err){
 			if(err){
 				console.log(err);
 				return done(null, false, "{message: error}");
 			}
-			if(rows.length == 0){
+			if(rows.length > 0){
 				return done(null, false, "{message: Username taken.}");
 			}else{
+				
 				var newUser ={
 					username: username,
 					password: password
 				};
+				
+				var inserts = [username, password];
 
-				var insertQuery = "INSERT INTO USERS values (0,?,null,null,null,?,?,?,now(),0)";
+				
 
-				dbConn().queryDB(mysql.format(insertQuery,newUser), function(rows,err)
+				var insertQuery = "INSERT INTO USERS values (0,?,null,null,null,?,null,null,now(),0)";
+
+				dbConn.queryDB(mysql.format(insertQuery,inserts), function(rows,err)
 				{
-					newUser.id = rows[0].USERID;
-					return done(null, newUser);
+					if(err)
+					{
+						console.log("cry");
+					}
+					else
+					{
+						dbConn.queryDB(mysql.format('SELECT USERID FROM USERS WHERE USERNAME = ?', inserts[0]), function(vals, err)
+						{
+							newUser.id = vals[0].USERID;
+							return done(null, newUser);
+						});
+					}
+				
 				});
 		}
 	})
@@ -328,7 +347,7 @@ passport.use(
 	},
 	function(username, password, done){
 		console.log("Entered.");
-		dbConn().queryDB("SELECT * FROM USERS WHERE USERNAME =?",[username], function(rows,err){
+		dbConn.queryDBEmpty(mysql.format("SELECT * FROM USERS WHERE USERNAME = ?", username), function(rows,err){
 		if(err)
 			return done(err);
 		if(rows.length == 0)
@@ -361,7 +380,7 @@ router.get('/logout', function(req,res){
 	res.message("Logged out.");
 });
 
-router.post('/signup',
+router.post('/signup', urlencodedParser,
 	passport.authenticate('local-signup'),
 	function(req,res){
 		console.log("Signup successful.");

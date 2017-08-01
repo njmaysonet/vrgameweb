@@ -5,12 +5,12 @@ var pool = mysql.createPool({
 	//host: "10.171.204.166",
 	host: "localhost",
 	user: "root",
-	password: "TRAAr5pjs65b8TXixNuo",
-	database: "cvrdb", 
+	password: "Bulb$asaur5m",
+	database: "cvrfinal", 
 })
 
 //base query function
-exports.queryDB = function queryDB(inQuery,  callback)
+exports.queryDB = function queryDB(inQuery, callback)
 {
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
@@ -18,7 +18,7 @@ exports.queryDB = function queryDB(inQuery,  callback)
 		console.log(inQuery);
 		if(err)
 		{
-			connection.release();
+			//connection.release();
 			callback("ERROR: COULDN'T CONNECT", "err");
 		}
 		else
@@ -40,6 +40,42 @@ exports.queryDB = function queryDB(inQuery,  callback)
 					{
 						callback("ERROR: NO MATCHES FOUND" , "err");
 					}					
+				}
+				else
+				{
+					console.log('connection problem');
+				}
+				
+			});
+		}	
+	});
+}
+
+exports.queryDBEmpty = function queryDB(inQuery, callback)
+{
+	//connects user to the pool
+	pool.getConnection(function(err, connection){	
+
+		console.log(inQuery);
+		if(err)
+		{
+			//connection.release();
+			console.log('Could not connect');
+			callback("ERROR: COULDN'T CONNECT", "err");
+		}
+		else
+		{
+			//queries the db using inQuery
+			connection.query(inQuery, function(err, rows, fields){
+				
+				connection.release();
+
+				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
+				if(!err)
+				{
+					console.log('I got : ' + JSON.stringify(rows));
+					//if something was returned, return int via callback, otherwise give a no matches found err
+					callback(rows, null);				
 				}
 				else
 				{
