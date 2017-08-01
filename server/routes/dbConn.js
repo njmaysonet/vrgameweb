@@ -43,13 +43,50 @@ exports.queryDB = function queryDB(inQuery,  callback)
 				}
 				else
 				{
-					console.log('connection problem');
+					callback("ERROR: QUERY COULD NOT COMPLETE: " + inQuery, "err");
 				}
 				
 			});
 		}	
 	});
 }
+
+//base query function
+exports.queryDBEmpty = function queryDB(inQuery,  callback)
+{
+	//connects user to the pool
+	pool.getConnection(function(err, connection){	
+
+		console.log(inQuery);
+		if(err)
+		{
+			connection.release();
+			callback("ERROR: COULDN'T CONNECT", "err");
+		}
+		else
+		{
+			//queries the db using inQuery
+			connection.query(inQuery, function(err, rows, fields){
+				
+				connection.release();
+
+				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
+				if(!err)
+				{
+					//if something was returned, return int via callback, otherwise give a no matches found err
+					callback(rows, null);					
+				}
+				else
+				{
+					callback("ERROR: QUERY COULD NOT COMPLETE: " + inQuery, "err");
+				}
+				
+			});
+		}	
+	});
+}
+
+
 
 //same as queryDB but does multiple queries at once
 exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
@@ -86,13 +123,13 @@ exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
 				else
 				{
 					console.log('connection problem');
+					callback("ERR", "err");
 				}
-				
 			});
 		}	
 	});
-
 }
+
 
 //inserts data from the game into the db
 exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
@@ -115,6 +152,7 @@ exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
 			//console.log('QUERY: ' + mysql.format(inQuery, localInserts));
 
 			//tries to insert the user's initial record into the db
+			console.log(mysql.format(inQuery, localInserts));
 			connection.query(mysql.format(inQuery, localInserts), function(err, rows, fields){
 				
 				//if we succeeded, insert each response into User_Responses

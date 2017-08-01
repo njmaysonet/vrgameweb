@@ -27,7 +27,7 @@ router.get('/user', (req, res) => {
 
 
 	//check to see if params are there
-	if(userid == undefined || username == undefined)
+	if(userid == undefined && username == undefined)
 	{
 		res.send('ERROR: NO USERID PARAMETER');
 	}
@@ -172,43 +172,51 @@ router.get('/userinfo', (req, res) => {
 //gets the data from multiple users. Array should be defined as above. Will ignore any id's that don't have users yet.
 router.get('/multiuser', (req, res) => {
 
+	var inQuery = 'SELECT * FROM USERS WHERE';
+	var arr = [];
+
 	//verifies that it was sent data
 	if(req.query.userid == undefined && req.query.username)
 	{
 		res.send('ERROR: NO USERID PARAMETER');
 	}
+	else if(req.query.userid == undefined)
+	{
+		arr = JSON.parse(req.query.username);
+
+		inQuery += ' USERNAME = ?';
+
+		if(arr.length > 1)
+		{
+			for(var i = 1; i < arr.length; i++)
+			{
+				if(i < arr.length)
+				{
+					inQuery += ' OR USERNAME = ?';
+				}
+			}
+		}
+	}
 	else
 	{
-		//sets up query
-		var inQuery = 'SELECT * FROM USERS WHERE USERID = ?';
 		//converts the array of id's into an actual array for JS.
-		var arr = JSON.parse(req.query.userid);
+		arr = JSON.parse(req.query.userid);
+
+		inQuery += ' USERID = ?';
 
 		//if we were sent data, build a query that searches for each index.
 		if(arr.length > 1)
 		{
 			for(var i = 1; i < arr.length; i++)
 			{
-				if(i+1 < arr.length)
+				if(i < arr.length)
 				{
 					inQuery += ' OR USERID = ?';
 				}
 			}
 		}
-
-		//repeates above process for usernames
-		arr = JSON.parse(req.query.username);
-
-		if(arr.length > 1)
-		{
-			for(var i = 1; i < arr.length; i++)
-			{
-				if(i+1 < arr.length)
-				{
-					inQuery += ' OR USERNAME = ?';
-				}
-			}
-		}
+		
+	}
 
 		//query on the data by inserting the arr into the query
 		dbConn.queryDB(mysql.format(inQuery, arr), function(val, err){
@@ -220,7 +228,7 @@ router.get('/multiuser', (req, res) => {
 				res.send('{ "players:"' + JSON.stringify(val) + "}");
 			}
 		});
-	}
+	
 });
 
 //gets all the info from a scenario row with scenarioid = inID
@@ -325,15 +333,15 @@ router.get('/getgroupmembers', (req, res) => {
 	else
 	{
 		//query; gets the userid from each user in a given group with the stated groupid
-		var inQuery = 'SELECT USERID FROM GROUPS NATURAL JOIN GROUP_MEMBERS WHERE GROUPID = ?';
+		var inQuery = 'SELECT USERID, USERNAME FROM GROUPS NATURAL JOIN GROUP_MEMBERS NATURAL JOIN USERS WHERE GROUPID = ?';
 
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 			
 			if(err) {
-				res.send(JSON.stringify(val));
+				res.send(val);
 			}
 			else {
-				res.send(JSON.stringify(val));
+				res.send('{ "players:"' + JSON.stringify(val) + "}");
 			}
 		});
 	}
@@ -345,7 +353,7 @@ router.get('/groupresponses', (req, res) => {
 	//gets both the scenario's id as well as the group we're searching for
 	var inserts = [req.query.scenid, req.query.groupid];
 	//query, see line 261 for breakdown. Same thing but now adds groups
-	var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS WHERE SCENARIOID = ? AND MOST_RECENT = 1 AND GROUPID = ? GROUP BY ANSWERID'
+	var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN GROUPS  NATURAL JOIN GROUP_MEMBERS WHERE SCENARIOID = ? AND MOST_RECENT = 1 AND GROUPID = ? GROUP BY GROUPID, SCENARIOID, QUESTIONID, ANSWERID'
 
 	//verifies that both parameters were passed in
 	if(inserts[0] == undefined || inserts[1] == undefined)
@@ -360,7 +368,6 @@ router.get('/groupresponses', (req, res) => {
 				res.send(val);
 			}
 			else {
-				//format accordingly
 				res.send(JSON.stringify(val));
 			}
 		});
@@ -407,7 +414,7 @@ router.get('/groupscores', (req, res) => {
 				}
 				else
 				{
-					res.send(JSON.stringify(val));
+					res.send('{ "players:"' + JSON.stringify(val) + "}");
 				}
 			}
 		});
@@ -598,7 +605,7 @@ router.post('/insertUser', (req, res) => {
 
 	//get inserts
 	var inserts = [req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
-				   req.body.PASSWORD, req.body.PROFILE_PIC, req.body.BIRTHDAY, NOW(), '0'];
+				   req.body.PASSWORD, req.body.PROFILE_PIC, req.body.BIRTHDAY];
 
 	//checks to verify that all necessary fields are filled.
 	if(inserts[0] == undefined || inserts[4] == undefined)
@@ -608,16 +615,16 @@ router.post('/insertUser', (req, res) => {
 	else
 	{
 		var i = 0; 
-		for(i = 0; i < inserts.length; i++)
+		for(i = 0; i < inserts.length - 2; i++)
 		{
-			if(inserts[i] = undefined)
+			if(inserts[i] == undefined)
 			{
 				inserts[i] = null;
 			}
 		}
 
 		//get query and combine the two
-		var inQuery = "INSERT INTO USERS VALUES('0',?,?,?,?,?,?,?,?,?)";
+		var inQuery = "INSERT INTO USERS VALUES('0',?,?,?,?,?,?,?,NOW(),'0')";
 
 		//insert the values into the db. 
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
@@ -635,15 +642,17 @@ router.post('/insertUser', (req, res) => {
 //updates a user's info
 router.post('/updateUser', (req, res) => {
 
+	console.log('HERE');
+
 	//gets all possible things to update for the user
-	var inserts = [req.body.USERID, req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
+	var userId = req.body.USERID;
+	var inserts = [req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
 				   req.body.PASSWORD, req.body.PROFILE_PIC, req.body.BIRTHDAY, req.body.ADMIN_STATUS];
 
 	//sets up things to update
 	var sqlComms = [' USERNAME = ?', ' FIRSTNAME = ?', ' LASTNAME = ?', ' EMAIL_ADDR = ?', ' PASSWORD = ?',
 					' PROFILE_PIC = ?', ' BIRTHDAY = ?', ' ADMIN_STATUS = ?'];
 
-	var i = 1;
 	var count = 0;
 	var newInserts = [];
 
@@ -651,9 +660,9 @@ router.post('/updateUser', (req, res) => {
 	var inQuery = 'UPDATE USERS SET ';
 
 	//loop through each inserts. if they're not undefined, update them.
-	for(i = 1; i < inserts.length; i++)
+	for(var i = 0; i < inserts.length; i++)
 	{
-		if(inserts[i-1] != undefined)
+		if(inserts[i] != undefined)
 		{
 			//if we have more than one thing to update, use a comma to separate them
 			if(count > 0)
@@ -663,7 +672,7 @@ router.post('/updateUser', (req, res) => {
 			//add the query string to the query
 			inQuery += sqlComms[i];
 			//add the value to a separate array
-			newInserts.push(inserts[i-1]);
+			newInserts.push(inserts[i]);
 			//increment count
 			count++;
 		}
@@ -671,7 +680,9 @@ router.post('/updateUser', (req, res) => {
 
 	//finish query to only update users with the specified id
 	inQuery += ' WHERE USERID = ?';
-	newInserts.push(inserts[0]);
+	newInserts.push(userId);
+
+	console.log(mysql.format(inQuery, newInserts));
 
 	//if we're updating at least one field, query to update it/them
 	if(count > 0)
@@ -752,7 +763,7 @@ router.post('/creategroup', (req, res) => {
 	else if(req.body.GROUP_NAME == undefined)
 	{
 		inserts = req.body.CREATOR;
-		inQuery = "INSERT INTO GROUPS VALUES('0', null, ?)";
+		inQuery = "INSERT INTO GROUPS VALUES('0', 'NewGroup1', ?)";
 	}
 	else
 	{
@@ -778,6 +789,8 @@ router.post('/addmembers', (req, res) => {
 	var members;
 	//get group to insert into
 	var groupid = req.body.groupid;
+	var inQuery = 'SELECT USERID FROM USERS WHERE';
+	var inserts = [], inInserts = [];
 
 	if(groupid == undefined || req.body.userid == undefined)
 	{
@@ -788,26 +801,101 @@ router.post('/addmembers', (req, res) => {
 		//parses the userids into a useable array
 		members = JSON.parse(req.body.userid);
 
-		//prepares to insert each userid by creating an array with arrays containing the insert values
-		var inserts = [];
-		var i = 0;
-		for(i = 0; i < members.length; i++)
+		console.log(members + ' ' + members.length);
+		for(var a = 0; a < members.length; a++)
 		{
-			inserts.push([groupid, members[i]]);
+			if(a != 0)
+			{
+				inQuery += ' OR';
+			}
+
+			inQuery += ' USERID = ?';
 		}
 
-		//query
-		var inQuery = "INSERT INTO GROUP_MEMBERS(GROUPID, USERID) VALUES ?";
+		
 
-		//inserts each row into the db.
-		dbConn.queryMulti(inQuery, inserts, function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, members), function(users, err){
 			if(err) {
-				res.send('ERR: FAILED TO ADD MEMBERS');
+				res.send('ERR');
 			}
 			else {
-				res.send('success');
-			}	
-		});
+				//prepares to insert each userid by creating an array with arrays containing the insert values
+				inserts = [], inInserts = [];
+				var i = 0, j = 0;
+
+				inQuery = 'SELECT USERID FROM GROUP_MEMBERS WHERE (';;
+				for(i = 0; i < users.length; i++)
+				{
+					inserts.push(users[i].USERID);
+					if(i != 0)
+					{
+						inQuery += ' OR ';
+					}
+
+					inQuery += 'USERID = ?';
+				}
+
+				inQuery += ') AND GROUPID = ? ORDER BY USERID';
+
+				inserts.push(groupid);
+
+				dbConn.queryDBEmpty(mysql.format(inQuery, inserts), function(val, err){
+					if(err) {
+						res.send('ERR: FAILED TO ADD MEMBERS 1');
+					}
+					else {
+
+						i = 0;
+						while(j < users.length)
+						{
+							console.log(i + ' ' + j);
+							if(i >= val.length || users[j].USERID != val[i].USERID)
+							{
+								inInserts.push([groupid, users[j].USERID]);
+								j++;
+							}
+							else
+							{
+								while(j < users.length && users[j].USERID== val[i].USERID)
+								{
+									j++;
+								}
+							}
+							i++;
+						}
+
+						//query
+						inQuery = "INSERT INTO GROUP_MEMBERS(GROUPID, USERID) VALUES ?";
+
+						//inserts each row into the db.
+
+						console.log('valid ids: ' + inInserts);
+
+						if(inInserts.length > 0)
+						{
+							dbConn.queryMulti(inQuery, inInserts, function(val, err){
+								if(err) {
+									res.send('ERR: FAILED TO ADD MEMBERS 2');
+								}
+								else {
+									res.send('success');
+								}	
+							});
+						}
+						else
+						{
+							res.send('NO VALID USERS TO INSERT');
+						}
+						
+					}
+				});
+
+			}
+		})
+
+		
+
+		
 	}
 });
 
@@ -817,7 +905,7 @@ router.post('/removemembers', (req, res) => {
 	var members;
 	//get group to insert into
 	var groupid = req.body.groupid;
-	var inQuery = "DELETE FROM GROUP_MEMBERS WHERE GROUPID = ? AND  USERID = ?";
+	var inQuery = "DELETE FROM GROUP_MEMBERS WHERE GROUPID = ? AND (USERID = ?";
 
 	if(groupid == undefined || req.body.userid == undefined)
 	{
@@ -828,7 +916,7 @@ router.post('/removemembers', (req, res) => {
 		//parses the userids into a useable array
 		members = JSON.parse(req.body.userid);
 
-		var inserts;
+		var inserts = [];
 
 		inserts.push(groupid);
 		inserts.push(members[0]);
@@ -840,8 +928,11 @@ router.post('/removemembers', (req, res) => {
 			inserts.push(members[i]);
 		}		
 
+		inQuery += ')';
+
+		console.log(inserts);
 		//remove any users with an id mentioned before
-		dbConn.queryMulti(inQuery, inserts, function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 			if(err) {
 				res.send('ERR: FAILED TO ADD MEMBERS');
 			}
@@ -858,6 +949,7 @@ router.post('/removeallmembers', (req, res) => {
 
 	//get group to insert into
 	var groupid = req.body.groupid;
+
 	var inQuery = "DELETE FROM GROUP_MEMBERS WHERE GROUPID = ?";
 
 	if(groupid == undefined)
@@ -867,7 +959,7 @@ router.post('/removeallmembers', (req, res) => {
 	else
 	{	
 		//removes all users from the group
-		dbConn.queryMulti(inQuery, inserts, function(val, err){
+		dbConn.queryMulti(inQuery, groupid, function(val, err){
 			if(err) {
 				res.send('ERR: FAILED TO ADD MEMBERS');
 			}
@@ -878,35 +970,6 @@ router.post('/removeallmembers', (req, res) => {
 	}
 });
 
-router.get('/exceltest', (req, res) => {
-	
-	try {
-		var workbook = new exceljs.Workbook();
-		var worksheet = workbook.addWorksheet('My Sheet');
-
-		worksheet.columns = [
-			{ header: 'Id', key: 'id', width: 10 },
-			{ header: 'Name', key: 'name', width: 32 },
-			{ header: 'D.O.B.', key: 'DOB', width: 10 }
-		];
-		worksheet.addRow({id: 1, name: 'John Doe', dob: new Date(1970,1,1)});
-		worksheet.addRow({id: 2, name: 'Jane Doe', dob: new Date(1965,1,7)});
-
-		var tempFilePath = tempy.file({extension: '.xlsx'});
-		workbook.xlsx.writeFile(tempFilePath).then(function() {
-			console.log('file is written');
-			res.sendFile(tempFilePath, function(err){
-				console.log('---------- error downloading file: ' + err);
-			});
-		});
-		
-		//res.send('yea');
-	} catch(err) {
-		console.log('OOOOOOO this is the error: ' + err);
-		//res.send('err');
-	}
-
-});
 
 
 
