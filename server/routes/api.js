@@ -5,8 +5,9 @@ var dbConn = require('./dbConn');
 var mysql = require('mysql');
 var http = require('http').Server(express);
 var io = require('socket.io')(http);
-var auth = require('./auth.js');
 var passport = require('passport');
+//var passportConfig = require('./auth.js');
+var LocalStrategy = require('passport-local').Strategy;
 
 //API Listing
 router.get('/', (req, res) => {
@@ -272,29 +273,101 @@ router.post('/insertUser', function(req, res){
 	}
 });
 
-//Passport Authentication Routes
+//Passport Configuration
 
-router.post('/login', function(req, res, next){
+passport.serializeUser(function(user,done){
+        done(null, user.USERID);
+    });
+
+passport.deserializeUser(function(id,done){
+    dbConn.queryDB("SELECT * FROM USERS WHERE USERID = ?",[id],function(rows,err){
+        done(err,rows[0]);
+    });
+});
+
+passport.use(
+	'local-signup',
+	new LocalStrategy({
+		usernameField: 'username',
+		passwordField: 'password',
+		passReqToCallback : true
+	},
+	function(username, password, done){
+		console.log("Entered signup.");
+		dbConn.queryDB("SELECT * FROM USERS WHERE USERNAME = ?",[username], function(rows,err){
+			if(err){
+				console.log(err);
+				return done(null, false, "{message: error}");
+			}
+			if(rows.length == 0){
+				return done(null, false, "{message: Username taken.}");
+			}else{
+				var newUser ={
+					username: username,
+					password: password
+				};
+
+				var insertQuery = "INSERT INTO USERS values (0,?,null,null,null,?,?,?,now(),0)";
+
+				dbConn().queryDB(mysql.format(insertQuery,newUser), function(rows,err)
+				{
+					newUser.id = rows[0].USERID;
+					return done(null, newUser);
+				});
+		}
+	})
+})
+);
+
+passport.use(
+	'local-login',
+	new LocalStrategy({
+		usernameField : 'username',
+		passwordField : 'password',
+		passReqToCallback : true
+	},
+	function(username, password, done){
+		console.log("Entered.");
+		dbConn().queryDB("SELECT * FROM USERS WHERE USERNAME =?",[username], function(rows,err){
+		if(err)
+			return done(err);
+		if(rows.length == 0)
+		{
+			return done(null, false, res.json("Error: User not found."));
+		}
+
+		if(password.localeCompare(rows[0].PASSWORD))
+			return done(null, false, res.json("Error: Incorrect password."));
+		
+		return done(null, rows[0]);
+	});
+})
+);
+
+//Passport Routes
+
+router.post('/login',
 	passport.authenticate('local-login'),
 	function(req,res){
 		res.json({
-			id: req[0].USERID, 
-			username: req[0].USERNAME
+			id: req.user.USERID, 
+			username: req.user.USERNAME
 		})
 	}
-});
+);
 
 router.get('/logout', function(req,res){
 	req.logout();
 	res.message("Logged out.");
 });
 
-router.post('/signup', function(req,res){
+router.post('/signup',
 	passport.authenticate('local-signup'),
 	function(req,res){
+		console.log("Signup successful.");
 		res.send("Account successfully created.");
 	}
-});
+);
 
 module.exports = router;
 

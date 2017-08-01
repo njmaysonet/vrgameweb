@@ -5,6 +5,7 @@ var dbConn = require('./dbConn.js');
 var mysql = require('mysql');
 
 module.exports = function(passport){
+    
     passport.serializeUser(function(user,done){
         done(null, user.USERID);
     });
@@ -25,8 +26,8 @@ module.exports = function(passport){
         function(req, username, password, done){
             dbConn.queryDB("SELECT * FROM USERS WHERE USERNAME = ?",[username], function(rows,err){
                 if(err)
-                    return done(err);
-                if(rows.length){
+                    return done(null, false, "{message: error}");
+                if(rows.length == 0){
                     return done(null, false, "Username taken.");
                 }else{
                     var newUser ={
