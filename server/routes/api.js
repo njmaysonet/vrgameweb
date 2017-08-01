@@ -6,10 +6,23 @@ var mysql = require('mysql');
 var http = require('http').Server(express);
 var io = require('socket.io')(http);
 var passport = require('passport');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 //var passportConfig = require('./auth.js');
 var LocalStrategy = require('passport-local').Strategy;
-var parser2 = require('body-parser');
-var urlencodedParser = parser2.urlencoded({extended : false});
+var bodyParser = require('body-parser');
+
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({extended: false}));
+router.use(cookieParser());
+router.use(session({
+    secret: 'hamboning',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {secure: true}
+}));
+router.use(passport.initialize());
+router.use(passport.session());
 
 //API Listing
 router.get('/', (req, res) => {
@@ -69,7 +82,7 @@ router.get('/userinfo', (req, res) => {
 				//new query for just relevant user data
 				inQuery = "SELECT USERID, DATE_JOINED, PROFILE_PIC, EMAIL_ADDR FROM USERS WHERE USERID = ?";
 
-				//query db; if there's still an error than either something bad happened or no user has userid = id. otherwise return user data
+				//query db; if there's still an error than either something bad hrouterened or no user has userid = id. otherwise return user data
 				dbConn.queryDB(mysql.format(inQuery, userid), function(inVal, inErr){
 					if(inErr) {
 						res.send('no users found');
@@ -278,12 +291,13 @@ router.post('/insertUser', function(req, res){
 //Passport Configuration
 
 passport.serializeUser(function(user,done){
-        done(null, user.USERID);
+		console.log(user + ' ' + JSON.stringify(user));
+        done(null, user.id);
     });
 
 passport.deserializeUser(function(id,done){
     dbConn.queryDB(mysql.format("SELECT * FROM USERS WHERE USERID = ?", id), function(rows,err){
-        done(err,rows[0]);
+        done(err,rows[0].USERID);
     });
 });
 
@@ -380,7 +394,7 @@ router.get('/logout', function(req,res){
 	res.message("Logged out.");
 });
 
-router.post('/signup', urlencodedParser,
+router.post('/signup', 
 	passport.authenticate('local-signup'),
 	function(req,res){
 		console.log("Signup successful.");
