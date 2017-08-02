@@ -24,7 +24,7 @@ import { AboutComponent} from './about/about.component';
 import { LoginComponent} from './login/login.component';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthService } from './auth/auth.service';
-//import { ScoreboardRemote} from './scoreboard/scoreboard.remote';
+import { GlobalEventsManager } from './events/events.emitter';
 
 @NgModule({
   declarations: [
@@ -34,7 +34,6 @@ import { AuthService } from './auth/auth.service';
     ScoreboardComponent,
     AboutComponent,
     LoginComponent
-    //ScoreboardRemote
   ],
   imports: [
     BrowserModule,
@@ -44,13 +43,13 @@ import { AuthService } from './auth/auth.service';
     MaterialModule,
     AppRoutingModule,
     AppMaterialModule,
-    //AlertModule.forRoot(),
     CommonModule,
-    //DataTableModule
     FlexLayoutModule,
     BrowserAnimationsModule
   ],
-  providers: [],
+  providers: [AuthService,
+              AuthGuard,
+              GlobalEventsManager],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

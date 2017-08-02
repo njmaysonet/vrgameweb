@@ -15,13 +15,16 @@ export class AuthService {
     constructor(private http: Http) {}
  
     login(username: string, password: string): Observable<boolean> {
-        return this.http.post(this.loginURL, JSON.stringify({ username: username, password: password }))
+        const headers = new Headers({'Content-Type':'application/x-www-form-urlencoded'});
+        const options = new RequestOptions({headers: headers});
+        let body = `username=${username}&password=${password}`;
+        return this.http.post(this.loginURL, body, options)
             .map((response: Response) => {
                 let user = response.json();
                 if(user)
                 {
                     // store username in local storage to keep user logged in between page refreshes
-                    localStorage.setItem('currentUser', JSON.stringify({ username: username}));
+                    localStorage.setItem('currentUser', JSON.stringify(user));
                     // return true to indicate successful login
                     this.currUser = user;
                     return true;
@@ -48,7 +51,10 @@ export class AuthService {
     }
 
     signup(username: string, password: string): Observable<boolean>{
-        return this.http.post('http://localhost:3000/api/login', JSON.stringify({USERNAME: username, PASSWORD: password}))
+        const headers = new Headers({'Content-Type':'application/x-www-form-urlencoded'});
+        const options = new RequestOptions({headers: headers});
+        let body = `username=${username}&password=${password}`;
+        return this.http.post('http://localhost:3000/api/signup', body, options)
             .map((res: Response) => {
                 let user = res.json();
                 if(user){

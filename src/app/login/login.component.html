@@ -7,18 +7,18 @@
         <md-input-container class="username">
                 <input mdInput placeholder="Enter username..." type="username" id="username"
                     required
-                    [(ngModel)]="model.name" name="username"
+                    [(ngModel)]="user.username" name="username"
                     #name = "ngModel">
-                    <div [hidden]="name.valid || name.pristine">
-                        Username is required
-                    </div>
             </md-input-container>
             <br>
             <md-input-container class="password">
-                <input mdInput placeholder="Enter password..." type="password" id="password">
+                <input mdInput placeholder="Enter password..." type="password" id="password"
+                required
+                [(ngModel)]="user.password" name="password"
+                #name = "ngModel">
             </md-input-container>
             <br>
-        <button md-button class="button" (click)="login()">
+        <button md-button class="button" [disabled]="!loginForm.form.valid">
             Sign In
         </button>
         <button md-button class="button" (click)="signup()">

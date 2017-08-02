@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var cors = require('cors');
 
 //Variables
 var port = process.env.PORT || '3000';
@@ -17,10 +18,12 @@ var app = express();
 var api = require('./server/routes/api');
 
 //Allow Cross Origin
-app.use(function(req,res,next){
-    res.header("Access-Control-Allow-Origin", "*");
-    next();
-})
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
 
 //Routes
 app.use('/api', api)

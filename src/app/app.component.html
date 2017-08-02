@@ -5,10 +5,30 @@
         <i class="material-icons">reorder</i>
       </button>
       <md-menu #menu="mdMenu" yPosition="below" [overlapTrigger]="false">
-        <button md-menu-item (click)="loginRedirect()">
-          <i class="material-icons">person</i>
-          Login
-        </button>
+        <div id="guestMenu" *ngIf="showGuestMenu">
+          <button md-menu-item (click)="loginRedirect()">
+            <i class="material-icons">person</i>
+            Login
+          </button>
+        </div>
+        <div id="userMenu" *ngIf="showUserMenu">
+          <button md-menu-item (click)="profileRedirect()">
+            Profile
+          </button>
+        </div>
+        <div id="adminMenu" *ngIf="showAdminMenu">
+          <button md-menu-item (click)="overviewRedirect()">
+            Overview
+          </button>
+          <button md-menu-item (click)="groupsRedirect()">
+            Groups
+          </button>
+        </div>
+        <div id="logoutOption" *ngIf="showAdminMenu || showUserMenu">
+            <button md-menu-item (click)="logout()">
+              Logout
+            </button>
+        </div>
       </md-menu>
       <button md-button class="default-primary-color text-primary-color navbutton" routerLink="/home" routerLinkActive="active">
         <i class="material-icons">home</i>

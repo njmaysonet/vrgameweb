@@ -1,5 +1,5 @@
 .login-card{
-    width: 40%;
+    
 }
 .login-card-container{
     margin: 50px auto;
@@ -15,4 +15,7 @@
 {
     background-color: #607D8B;
     color: white;
+}
+.alert{
+    
 }
