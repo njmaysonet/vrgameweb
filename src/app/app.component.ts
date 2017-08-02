@@ -17,7 +17,6 @@ export class AppComponent implements OnInit {
   showGuestMenu: boolean = true;
   showUserMenu: boolean = false;
   showAdminMenu: boolean = false;
-
   //Global Events Manager detects logins and signals the sidebar menu
   //to display different options based on the admin status of the user
 
@@ -55,7 +54,7 @@ export class AppComponent implements OnInit {
 
   loginRedirect()
   {
-    this.router.navigate(['/login'])
+    this.router.navigate(['/login']);
   }
 
   logout(){

@@ -9,8 +9,9 @@ import { User } from '../models/user';
 @Injectable()
 export class AuthService {
     private currUser : User;
-    private loginURL = 'http://localhost:3000/api/login';
-    private logoutURL = 'http://localhost:3000/api/logout';
+    private loginURL = 'http://localhost:3000/api/loginUser';
+    private logoutURL = 'http://localhost:3000/api/logoutUser';
+    private signupURL = 'http://localhost:3000/api/signupUser';
 
     constructor(private http: Http) {}
  
@@ -54,7 +55,7 @@ export class AuthService {
         const headers = new Headers({'Content-Type':'application/x-www-form-urlencoded'});
         const options = new RequestOptions({headers: headers});
         let body = `username=${username}&password=${password}`;
-        return this.http.post('http://localhost:3000/api/signup', body, options)
+        return this.http.post(this.signupURL, body, options)
             .map((res: Response) => {
                 let user = res.json();
                 if(user){

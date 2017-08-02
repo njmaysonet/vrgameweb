@@ -24,6 +24,7 @@ export class AuthGuard implements CanActivate {
             return true;
         }
         this.router.navigate(['/login']);
+        console.log("USER UNAUTHORIZED.");
         this.globalEventsManager.showGuestMenu.emit(true);
         return false;
     }

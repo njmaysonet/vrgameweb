@@ -406,19 +406,19 @@ passport.use(
 
 //Passport Routes
 
-router.post('/login',
+router.post('/loginUser',
 	passport.authenticate('local-login'),
 	function(req,res){
 		res.send(req.user);
 	}
 );
 
-router.get('/logout', function(req,res){
+router.get('/logoutUser', function(req,res){
 	req.logout();
 	res.send("Logged out.");
 });
 
-router.post('/signup', 
+router.post('/signupUser', 
 	passport.authenticate('local-signup'),
 	function(req,res){
 		console.log("Signup successful.");
