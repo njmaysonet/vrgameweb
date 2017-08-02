@@ -10,11 +10,12 @@ import { Player } from '../models/player'
 @Injectable()
 export class ScoreboardService{
     private apiURL = 'http://localhost:3000/api/userinfo';
+    private multiURL = 'http://localhost:3000/api/multiuser?userid=["1","4","8"]'
 
     constructor (private http: Http) {}
 
     getPlayers(): Observable<Player[]> {
-        return this.http.get(this.apiURL)
+        return this.http.get(this.multiURL)
             .map((res: Response) => res.json().players)
             .catch(this.handleError);
     }

@@ -4,11 +4,13 @@ import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import {AppMaterialModule} from './app-material.module';
 import {MdMenuModule} from '@angular/material';
 import {GlobalEventsManager} from './events/events.emitter';
+import {AuthService} from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: "./app.component.html",
   styleUrls: ['./app.component.css'],
+  providers: [AuthService]
 })
 export class AppComponent implements OnInit {
   title = 'UCF Cultural VR Website';
@@ -19,7 +21,7 @@ export class AppComponent implements OnInit {
   //Global Events Manager detects logins and signals the sidebar menu
   //to display different options based on the admin status of the user
 
-  constructor(private router: Router, 
+  constructor(private router: Router, private authService: AuthService,
               private globalEventsManager: GlobalEventsManager){
                 this.globalEventsManager.showAdminMenu.subscribe((mode: any) => {
                   this.showAdminMenu = mode;
@@ -54,5 +56,10 @@ export class AppComponent implements OnInit {
   loginRedirect()
   {
     this.router.navigate(['/login'])
+  }
+
+  logout(){
+    this.authService.logout();
+    this.router.navigate(['/home']);
   }
 }

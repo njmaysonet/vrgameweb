@@ -29,6 +29,10 @@ router.get('/', (req, res) => {
     res.send('API Running.');
 });
 
+router.get('/data', (req,res) => {
+	res.send(data);
+});
+
 //gets all user info where userid = id;
 router.get('/user', (req, res) => {
 	
@@ -150,7 +154,7 @@ router.get('/multiuser', (req, res) => {
 			}
 			else {
 				//format accordingly
-				res.send('{ "players:"' + JSON.stringify(val) + "}");
+				res.send('{ "players":' + JSON.stringify(val) + "}");
 			}
 		});
 	}
