@@ -67,29 +67,23 @@ router.get('/gameuser', (req, res) =>{
 	var inQuery;
 
 	//sees if username and/or email are defined. If one is query on it, otherwise err.
-	if(req.query.username == undefined && req.query.email == undefined)
+	if(req.query.username == undefined || req.query.password == undefined)
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
-	else if(req.query.email == undefined)
-	{
-		userData = req.query.username;
-		inQuery = "SELECT USERID FROM USERS WHERE USERNAME = ?";
-	}
-	else
-	{
-		userData = req.query.email;
-		inQuery = "SELECT USERID FROM USERS WHERE EMAIL_ADDR = ?";
-	}
+		userData = [req.query.username, req.query.password];
+		inQuery = "SELECT USERID FROM USERS WHERE USERNAME = ? AND PASSWORD = ?";
 
+	
 	//query db for the userid. returns an integer.
 	dbConn.queryDB(mysql.format(inQuery, userData), function(val, err){
 		if(err) {
 			res.send(null);
 		}
 		else {
-			//converts the query result into an int
+
 			res.send(JSON.stringify(val[0].USERID));
+			
 		}
 		
 	});
