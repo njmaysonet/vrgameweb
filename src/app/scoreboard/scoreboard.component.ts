@@ -16,8 +16,10 @@ import {Player} from '../models/player';
 export class ScoreboardComponent implements OnInit {
     errorMessage: string;
     players: Player[];
+    searchResults: Player[] = new Array<Player>();
     mode = 'Observable';
     isChecked = true;
+    searchTerm: string = null;
 
     constructor (private scoreboardService: ScoreboardService){}
 
@@ -34,6 +36,15 @@ export class ScoreboardComponent implements OnInit {
                 },
                 error => this.errorMessage = <any>error
                 );
+    }
+    
+    search(searchTerm){
+        this.scoreboardService.searchPlayers(searchTerm)
+            .subscribe(
+                player => {
+                    this.searchResults[0] = player;
+                }
+            )
     }
 
     toggle(){

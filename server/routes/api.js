@@ -65,29 +65,29 @@ router.get('/user', (req, res) => {
 //returns all relevant user info where userid = id
 router.get('/userinfo', (req, res) => {
 	
-	var userid = req.query.userid;
+	var username = req.query.username;
 
 	//check to see if params are there
-	if(userid == undefined)
+	if(username == undefined)
 	{
 		res.send('ERROR: NO USERID PARAMETER');
 	}
 	else
 	{
 		//gross query
-		var inQuery = "SELECT USERID, DATE_JOINED, TIME_PLAYED, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
-		" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
+		inQuery = "SELECT USERID, USERNAME, FIRSTNAME, LASTNAME, DATE_JOINED, SCORE, REASONING, TIME_COMPLETE, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
+				" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERNAME = ?";
 		
 		//searches db to see if userid = id exists with game data.
-		dbConn.queryDB(mysql.format(inQuery, userid), function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, username), function(val, err){
 
 			//if there was an error make sure it wasn't becasue the user just hasn't played a scenario
 			if(err) {
 				//new query for just relevant user data
-				inQuery = "SELECT USERID, DATE_JOINED, PROFILE_PIC, EMAIL_ADDR FROM USERS WHERE USERID = ?";
+				inQuery = "SELECT USERID, DATE_JOINED, PROFILE_PIC, EMAIL_ADDR FROM USERS WHERE USERNAME = ?";
 
 				//query db; if there's still an error than either something bad hrouterened or no user has userid = id. otherwise return user data
-				dbConn.queryDB(mysql.format(inQuery, userid), function(inVal, inErr){
+				dbConn.queryDB(mysql.format(inQuery, username), function(inVal, inErr){
 					if(inErr) {
 						res.send('no users found');
 					}
@@ -154,7 +154,33 @@ router.get('/multiuser', (req, res) => {
 			}
 			else {
 				//format accordingly
-				res.send('{ "players":' + JSON.stringify(val) + "}");
+				var users = [];
+				inQuery = "SELECT USERID, USERNAME, FIRSTNAME, LASTNAME, DATE_JOINED, SCORE, REASONING, TIME_COMPLETE, PROFILE_PIC, EMAIL_ADDR, SCENARIOID, TITLE,  TIME_PLAYED, QUESTIONID, PROMPT, ANSWERID, ANSWER" + 
+				" FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES WHERE USERID = ?";
+		
+				users.push(val[0].USERID);
+				
+				for(var i = 1; i < val.length; i++)
+				{
+					inQuery += ' OR USERID = ?'
+					users.push(val[i].USERID);
+				}
+
+				dbConn.queryDB(mysql.format(inQuery, users), function(val2, err){
+				
+					if(!err)
+					{
+						dbConn.formatUserJSON(val2, function(ret, err){
+							if(!err) {
+								res.send(ret);
+							}
+							else {
+								res.send("ERROR: JSON-CONVERSION FAILED");
+							}
+						});
+					}
+				});
+				
 			}
 		});
 	}

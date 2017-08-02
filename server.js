@@ -6,7 +6,6 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-var cors = require('cors');
 
 //Variables
 var port = process.env.PORT || '3000';

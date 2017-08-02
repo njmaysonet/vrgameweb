@@ -6,3 +6,62 @@
         }
     ]
 }
+
+{
+    "players": [
+        {
+            "USERID": "1",
+            "DATE_JOINED": "Tue May 30 2017 00:00:00 GMT-0400 (Eastern Daylight Time)",
+            "PROFILE_PIC": "/wand.png",
+            "EMAIL_ADDR": "HGranger@gmail.com",
+            "SCENARIOS": [
+                {
+                    "SCENARIOID": "3",
+                    "TITLE": "Checking into a Hotel",
+                    "TIME_PLAYED": "01:14:30",
+                    "TIME_COMPLETE": "undefined",
+                    "QUESTIONS": [
+                        {
+                            "QUESTIONID": "1",
+                            "PROMPT": "What item is often on the service desk to ask for help?",
+                            "ANSWERID": "3",
+                            "ANSWER": "Bell"
+                        },
+                        {"QUESTIONID": "2",
+                            "PROMPT": "How should you thank an employee of the hotel if they bring your bags to your room?",
+                            "ANSWERID": "3",
+                            "ANSWER": "Thank them"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "USERID": "4",
+            "DATE_JOINED": "Sat May 20 2017 00:00:00 GMT-0400 (Eastern Daylight Time)",
+            "PROFILE_PIC": "/crystalgems.png",
+            "EMAIL_ADDR": "SUniverse@gmail.com",
+            "SCENARIOS": [
+                {
+                    "SCENARIOID": "2",
+                    "TITLE": "Ordering Food at a Restaurant",
+                    "TIME_PLAYED": "01:28:30",
+                    "TIME_COMPLETE": "undefined",
+                    "QUESTIONS": [
+                        {
+                            "QUESTIONID": "1",
+                            "PROMPT": "What is Fish and Chips?",
+                            "ANSWERID": "1",
+                            "ANSWER": "Fish and Potato Chips"
+                        },
+                        {
+                            "QUESTIONID": "2",
+                            "PROMPT": "How much should you tip for a meal?",
+                            "ANSWERID": "2",
+                            "ANSWER": "15-25%"
+                        }
+                    ]
+                }
+            ]
+        }
+        ]}

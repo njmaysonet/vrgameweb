@@ -1,3 +1,4 @@
+import {Scenarios} from './scenarios';
 export interface User {
     USERID: number;
     USERNAME: string;
@@ -9,4 +10,5 @@ export interface User {
     BIRTHDAY: string;
     DATE_JOINED: string;
     ADMIN_STATUS: number;
+    SCENARIOS: Scenarios[];
 }

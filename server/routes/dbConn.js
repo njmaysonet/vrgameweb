@@ -5,8 +5,8 @@ var pool = mysql.createPool({
 	//host: "10.171.204.166",
 	host: "localhost",
 	user: "root",
-	password: "TRAAr5pjs65b8TXixNuo",
-	database: "cvrdb", 
+	password: "Bulb$asaur5m",
+	database: "cvrfinal", 
 })
 
 //base query function
@@ -415,12 +415,15 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		//if the userid is still the current one, continue with that user's data
 		if(currID == str[i].USERID)
 		{
+			
 			//if the scenairoid and timestamp are the same, then add the new question + answer record
-			if(currScenID == str[i].SCENARIOID && currTimeComplete == str[i].TIME_COMPLETE)
+			if(currScenID == str[i].SCENARIOID && currTimeComplete.getTime() == str[i].TIME_COMPLETE.getTime())
 			{
 				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
 				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"REASONING": "' + str[i].REASONING + '",';	
+				retString += '"SCORE": "' + str[i].SCORE + '",';
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 			}
@@ -435,6 +438,8 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
 				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"REASONING": "' + str[i].REASONING + '",';
+				retString += '"SCORE": "' + str[i].SCORE + '",';
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 				currScenID = str[i].SCENARIOID;
@@ -446,11 +451,14 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		{
 			if(i != 0)
 			{
-				retString += '},';
+				retString += ']}]},';
 			}
 			
 
 			retString += '{"USERID": "' + str[i].USERID + '",';
+			retString += '"USERNAME": "' + str[i].USERNAME + '",';
+			retString += '"FIRSTNAME": "' + str[i].FIRSTNAME+ '",';
+			retString += '"LASTNAME": "' + str[i].LASTNAME + '",';
 			retString += '"DATE_JOINED": "' + str[i].DATE_JOINED + '",';
 			retString += '"PROFILE_PIC": "' + str[i].PROFILE_PIC + '",';
 			retString += '"EMAIL_ADDR": "' + str[i].EMAIL_ADDR + '",';
@@ -463,6 +471,8 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 			retString += '"PROMPT": "' + str[i].PROMPT + '",';
 			retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"REASONING": "' + str[i].REASONING + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
 			retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 			
 			//sets current data
@@ -477,7 +487,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 	}
 
 	//finishes the JSON
-	retString += ']]}]}]}';
+	retString += ']}]}]}';
 
 	callback(retString, null);
 

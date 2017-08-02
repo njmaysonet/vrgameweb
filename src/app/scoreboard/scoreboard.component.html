@@ -35,9 +35,44 @@
             <div fxLayout="column" fxAlign="none center">
             <md-card-title style="text-align: center">Profile Search <i class="material-icons">search</i></md-card-title>
             <md-input-container class=searchbar>
-                <input mdInput placeholder="Enter username..." type="search">
+                <input mdInput placeholder="Enter username to search..." id="term" type="search"
+                [(ngModel)]="searchTerm" name="term"
+                #name = "ngModel" (keyup.enter)="search(searchTerm)">
             </md-input-container>
             </div>
+        </md-card>
+    </div>
+</div>
+<div class="container" *ngFor="let player of searchResults">
+    <div fxLayout="column" fxAlign="none none">
+        <md-card>
+            <div md-card-avatar class="header-image"></div>
+            <md-card-title>User: {{player.USERNAME}}</md-card-title>
+            <md-card-subtitle>Name: {{player.FIRSTNAME}} {{player.LASTNAME}}</md-card-subtitle>
+            <md-card-content>
+                <h2 class="user-info">User Info:</h2>
+                <p>Date Joined: {{player.DATE_JOINED | date: "MM/dd/yy" }}</p>
+                <h3 class="scenario-info"> Scenarios: </h3>
+                <div *ngFor="let scenario of player.SCENARIOS">
+                    <ul>
+                    <li><b>Scenario:</b> {{scenario.TITLE}}</li>
+                    <li><b>Time Played:</b> {{scenario.TIME_PLAYED}}</li>
+                    <li><b>Date Completed:</b> {{scenario.TIME_COMPLETE | date: "MM/dd/yy"}}</li>
+                    <div *ngFor="let question of scenario.QUESTIONS">
+                        <ul>
+                        <li>Question: {{question.PROMPT}}</li>
+                            <ul>
+                            <li>Answer: {{question.ANSWER}} ({{question.SCORE}})</li>
+                            <li>Reasoning: {{question.REASONING}}</li>
+                            </ul>
+                        </ul>
+                    </div>
+                    </ul>
+                </div>
+            </md-card-content>
+            <md-card-actions>
+                <button md-button> SHARE </button>
+            </md-card-actions>
         </md-card>
     </div>
 </div>
@@ -49,23 +84,28 @@
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>
-            <md-card-title>{{player.name}}</md-card-title>
-            <md-card-subtitle>Total Time Played: {{player.timePlayed}} hours.</md-card-subtitle>
+            <md-card-title>User: {{player.USERNAME}}</md-card-title>
+            <md-card-subtitle>Name: {{player.FIRSTNAME}} {{player.LASTNAME}}</md-card-subtitle>
             <md-card-content>
-                <h3>Bio:</h3>
-                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                    nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
-                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                    Excepteur sint occaecat cupidatat non proident, 
-                    sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
-                <h3> Scenario Completion: </h3>
-                <md-checkbox [checked]="[player.progress1]" [disabled]="true">Scenario 1</md-checkbox>
-                <br>
-                <md-checkbox [checked]="[player.progress2]" [disabled]="true">Scenario 2</md-checkbox>
-                <br>
-                <md-checkbox [checked]="[player.progress3]" [disabled]="true">Scenario 3</md-checkbox>
+                <h2 class="user-info">User Info:</h2>
+                <p>Date Joined: {{player.DATE_JOINED | date: "MM/dd/yy" }}</p>
+                <h3 class="scenario-info"> Scenarios: </h3>
+                <div *ngFor="let scenario of player.SCENARIOS">
+                    <ul>
+                    <li><b>Scenario:</b> {{scenario.TITLE}}</li>
+                    <li><b>Time Played:</b> {{scenario.TIME_PLAYED}}</li>
+                    <li><b>Date Completed:</b> {{scenario.TIME_COMPLETE | date: "MM/dd/yy"}}</li>
+                    <div *ngFor="let question of scenario.QUESTIONS">
+                        <ul>
+                        <li>Question: {{question.PROMPT}}</li>
+                            <ul>
+                            <li>Answer: {{question.ANSWER}} ({{question.SCORE}})</li>
+                            <li>Reasoning: {{question.REASONING}}</li>
+                            </ul>
+                        </ul>
+                    </div>
+                    </ul>
+                </div>
             </md-card-content>
             <md-card-actions>
                 <button md-button> SHARE </button>

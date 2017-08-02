@@ -1,8 +1,12 @@
 export class Player{
-    public id: number;
-    public username: string;
-    public progress1: string;
-    public progress2: string;
-    public progress3: string;
-    public timePlayed: string;
+    USERID: number;
+    USERNAME: string;
+    FIRSTNAME: string;
+    LASTNAME: string;
+    EMAIL_ADDR: string;
+    PASSWORD: string;
+    PROFILE_PIC: string;
+    BIRTHDAY: string;
+    DATE_JOINED: string;
+    ADMIN_STATUS: number;
 }
