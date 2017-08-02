@@ -13,11 +13,11 @@ exports.exportGroupScores = function exportGroupScores(inJson, callback)
         { header: 'MaxScore', key: 'maxscore', width: 10}
     ];
 
-    console.log('I got ' + inJson);
+    //console.log('I got ' + inJson);
 
     for(var i = 0; i < inJson.length; i++)
     {
-        console.log(inJson[i].USERID + " " + inJson[i].SCENARIOID + " " + inJson[i].USER_SCORE + " " + inJson[i].MAX_SCORE);
+        //console.log(inJson[i].USERID + " " + inJson[i].SCENARIOID + " " + inJson[i].USER_SCORE + " " + inJson[i].MAX_SCORE);
         worksheet.addRow({id: inJson[i].USERID, scenid: inJson[i].SCENARIOID, usrScore: inJson[i].USER_SCORE, maxscore: inJson[i].MAX_SCORE});
     }
         
@@ -105,19 +105,17 @@ exports.exportDataFull = function exportDataFull(scores, responses, answers, use
                 //set column constraints
                 worksheet.columns = [
                     {width: 15}, {width: 15}, {width: 15}, {width: 15}, {width: 16}, 
-                    {width: 15}, {width: 15}, {width: 75}, {width: 25}, {width: 15}
+                    {width: 15}, {width: 15}, {width: 75}, {width: 15}, {width: 25}, {width: 15}
                 ];
 
-                //init worksheet
-                worksheet.addRow(['Group:', currGroup, users[usersCount].GROUP_NAME, '', '', '', 'Scenario:', users[usersCount].TITLE, currScenario,  '']);
+                worksheet.addRow(['Group:', currGroup, users[usersCount].GROUP_NAME, '', '', '', 'Scenario:', users[usersCount].TITLE, currScenario, '', '']);
                 worksheet.addRow();
-                worksheet.addRow(['USERID', 'USERNAME', 'FIRSTNAME', 'LASTNAME', 'TIME_COMPLETE', 'TOTAL_TIME', 'Question#', 'Prompt', 'Answer', 'Score']);
+                worksheet.addRow(['USERID', 'USERNAME', 'FIRSTNAME', 'LASTNAME', 'TIME_COMPLETE', 'TOTAL_TIME', 'Question#', 'Prompt', 'Answer#', 'Answer', 'Score']);
                 
-                //loop through the users who are part of the group and did the given scenario. Add the info into the worksheet
                 while(usersCount < users.length && users[usersCount].GROUPID == currGroup && users[usersCount].SCENARIOID == currScenario)
                 {
                     worksheet.addRow([users[usersCount].USERID, users[usersCount].USERNAME, users[usersCount].FIRSTNAME, users[usersCount].LASTNAME, users[usersCount].TIME_COMPLETE, users[usersCount].TIME_PLAYED,
-                                      users[usersCount].QUESTIONID, users[usersCount].PROMPT, users[usersCount].ANSWER, users[usersCount].SCORE]);
+                                        users[usersCount].QUESTIONID, users[usersCount].PROMPT, users[usersCount].ANSWERID, users[usersCount].ANSWER, users[usersCount].SCORE]);
                     usersCount++;
                 }
             }
@@ -234,17 +232,17 @@ exports.exportDataFull = function exportDataFull(scores, responses, answers, use
 
         worksheet.columns = [
             {width: 15}, {width: 15}, {width: 15}, {width: 15}, {width: 16}, 
-            {width: 15}, {width: 15}, {width: 75}, {width: 25}, {width: 15}
+            {width: 15}, {width: 15}, {width: 75}, {width: 15}, {width: 25}, {width: 15}
         ];
 
-        worksheet.addRow(['Group:', currGroup, users[usersCount].GROUP_NAME, '', '', '', 'Scenario:', users[usersCount].TITLE, currScenario, '']);
+        worksheet.addRow(['Group:', currGroup, users[usersCount].GROUP_NAME, '', '', '', 'Scenario:', users[usersCount].TITLE, currScenario, '', '']);
         worksheet.addRow();
-        worksheet.addRow(['USERID', 'USERNAME', 'FIRSTNAME', 'LASTNAME', 'TIME_COMPLETE', 'TOTAL_TIME', 'Question#', 'Prompt', 'Answer', 'Score']);
+        worksheet.addRow(['USERID', 'USERNAME', 'FIRSTNAME', 'LASTNAME', 'TIME_COMPLETE', 'TOTAL_TIME', 'Question#', 'Prompt', 'Answer#', 'Answer', 'Score']);
         
         while(usersCount < users.length && users[usersCount].GROUPID == currGroup && users[usersCount].SCENARIOID == currScenario)
         {
             worksheet.addRow([users[usersCount].USERID, users[usersCount].USERNAME, users[usersCount].FIRSTNAME, users[usersCount].LASTNAME, users[usersCount].TIME_COMPLETE, users[usersCount].TIME_PLAYED,
-                                users[usersCount].QUESTIONID, users[usersCount].PROMPT, users[usersCount].ANSWER, users[usersCount].SCORE]);
+                                users[usersCount].QUESTIONID, users[usersCount].PROMPT, users[usersCount].ANSWERID, users[usersCount].ANSWER, users[usersCount].SCORE]);
             usersCount++;
         }
     }

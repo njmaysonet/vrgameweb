@@ -66,4 +66,35 @@ FROM YourTableName
 			]
 		}
 	]
-}
+},
+
+{
+	"scenarios": [
+		{
+			"SCENARIOID": "2",
+			"TITLE": "undefined",
+			"QUESTIONS": [
+				{
+					"QUESTIONID": "1",
+					"PROMPT": "What is Fish and Chips?",
+					"ANSWERS": [
+						{
+							"ANSWERID": "1",
+							"ANSWER": "Fish and Potato Chips",
+							"SCORE": "undefined",
+							"NUMRESPONSES": "5"
+						}
+					]
+				},
+				{
+					"QUESTIONID": "2",
+					"PROMPT": "How much should you tip for a meal?",
+					"ANSWERS": [
+						{
+							"ANSWERID": "2",
+							"ANSWER": "15-25%",
+							"SCORE": "undefined",
+							"NUMRESPONSES": "10"}
+							]
+						},
+					{"QUESTIONID": "1","PROMPT": "What is Fish and Chips?","ANSWERS": [{"ANSWERID": "3","ANSWER": "Fish and French Fries","SCORE": "undefined","NUMRESPONSES": "7"}]}]}]}

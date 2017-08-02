@@ -10,15 +10,15 @@ var pool = mysql.createPool({
 })
 
 //base query function
-exports.queryDB = function queryDB(inQuery, callback)
+exports.queryDB = function queryDB(inQuery,  callback)
 {
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
 
-		console.log(inQuery);
+		//console.log(inQuery);
 		if(err)
 		{
-			//connection.release();
+			connection.release();
 			callback("ERROR: COULDN'T CONNECT", "err");
 		}
 		else
@@ -43,7 +43,7 @@ exports.queryDB = function queryDB(inQuery, callback)
 				}
 				else
 				{
-					console.log('connection problem');
+					callback("ERROR: QUERY COULD NOT COMPLETE: " + inQuery, "err");
 				}
 				
 			});
@@ -51,16 +51,16 @@ exports.queryDB = function queryDB(inQuery, callback)
 	});
 }
 
-exports.queryDBEmpty = function queryDB(inQuery, callback)
+//base query function
+exports.queryDBEmpty = function queryDB(inQuery,  callback)
 {
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
 
-		console.log(inQuery);
+		//console.log(inQuery);
 		if(err)
 		{
-			//connection.release();
-			console.log('Could not connect');
+			connection.release();
 			callback("ERROR: COULDN'T CONNECT", "err");
 		}
 		else
@@ -73,13 +73,12 @@ exports.queryDBEmpty = function queryDB(inQuery, callback)
 				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
 				if(!err)
 				{
-					console.log('I got : ' + JSON.stringify(rows));
 					//if something was returned, return int via callback, otherwise give a no matches found err
-					callback(rows, null);				
+					callback(rows, null);					
 				}
 				else
 				{
-					console.log('connection problem');
+					callback("ERROR: QUERY COULD NOT COMPLETE: " + inQuery, "err");
 				}
 				
 			});
@@ -87,13 +86,15 @@ exports.queryDBEmpty = function queryDB(inQuery, callback)
 	});
 }
 
+
+
 //same as queryDB but does multiple queries at once
 exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
 {
 	//connects user to the pool
 	pool.getConnection(function(err, connection){	
 
-		console.log(inQuery);
+		//console.log(inQuery);
 		if(err)
 		{
 			connection.release();
@@ -121,14 +122,13 @@ exports.queryMulti = function queryMulti(inQuery, multiArr, callback)
 				}
 				else
 				{
-					console.log('connection problem');
+					callback("ERR", "err");
 				}
-				
 			});
 		}	
 	});
-
 }
+
 
 //inserts data from the game into the db
 exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
@@ -151,6 +151,7 @@ exports.insertUserResponseDB = function insertUserResponseDB(inserts, callback)
 			//console.log('QUERY: ' + mysql.format(inQuery, localInserts));
 
 			//tries to insert the user's initial record into the db
+
 			connection.query(mysql.format(inQuery, localInserts), function(err, rows, fields){
 				
 				//if we succeeded, insert each response into User_Responses
@@ -267,7 +268,6 @@ exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callba
 		else
 		{
 			//queries the db using inQuery
-			console.log(mysql.format(inQuery, inserts));
 			connection.query(mysql.format(inQuery, inserts), function(err, rows, fields){
 				
 				//if there wasn't an error, handle the result, otherwise something happened with connecting to db
@@ -400,7 +400,6 @@ exports.insertScenarioInfo = function insertScenarioInfo(json, cultureid, callba
 exports.formatUserJSON = function formatUserJSON(str, callback)
 {
 	var retString = '{"players": [';
-	console.log(str.length);
 
 	var currID = -1;
 	var currScenID = -1;
@@ -415,15 +414,12 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		//if the userid is still the current one, continue with that user's data
 		if(currID == str[i].USERID)
 		{
-			
 			//if the scenairoid and timestamp are the same, then add the new question + answer record
-			if(currScenID == str[i].SCENARIOID && currTimeComplete.getTime() == str[i].TIME_COMPLETE.getTime())
+			if(currScenID == str[i].SCENARIOID && currTimeComplete == str[i].TIME_COMPLETE)
 			{
 				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
 				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
-				retString += '"REASONING": "' + str[i].REASONING + '",';	
-				retString += '"SCORE": "' + str[i].SCORE + '",';
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 			}
@@ -438,8 +434,6 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
 				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
-				retString += '"REASONING": "' + str[i].REASONING + '",';
-				retString += '"SCORE": "' + str[i].SCORE + '",';
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 				currScenID = str[i].SCENARIOID;
@@ -451,14 +445,11 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		{
 			if(i != 0)
 			{
-				retString += ']}]},';
+				retString += '},';
 			}
 			
 
 			retString += '{"USERID": "' + str[i].USERID + '",';
-			retString += '"USERNAME": "' + str[i].USERNAME + '",';
-			retString += '"FIRSTNAME": "' + str[i].FIRSTNAME+ '",';
-			retString += '"LASTNAME": "' + str[i].LASTNAME + '",';
 			retString += '"DATE_JOINED": "' + str[i].DATE_JOINED + '",';
 			retString += '"PROFILE_PIC": "' + str[i].PROFILE_PIC + '",';
 			retString += '"EMAIL_ADDR": "' + str[i].EMAIL_ADDR + '",';
@@ -471,8 +462,6 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 			retString += '"PROMPT": "' + str[i].PROMPT + '",';
 			retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
-			retString += '"REASONING": "' + str[i].REASONING + '",';
-			retString += '"SCORE": "' + str[i].SCORE + '",';
 			retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 			
 			//sets current data
@@ -487,6 +476,66 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 	}
 
 	//finishes the JSON
+	retString += ']]}]}]}';
+
+	callback(retString, null);
+
+}
+
+//TODO
+exports.formatScenarioJSON = function formatScenarioJSON(str, callback)
+{
+	var retString = '{"scenarios": [';
+
+	var currScenID = -1;
+	var currQuestionID = -1;
+	var currTimeComplete = -1;
+	var totalTime = 0;
+	var i = 0;
+
+	for(i = 0; i < str.length; i++)
+	{
+		if(currScenID == str[i].SCENARIOID && currQuestionID == str[i].QUESTIONID)
+		{
+			retString += ',{"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"NUMRESPONSES": "' + str[i].NUMRESPONCES + '"}';
+		}
+		else if(currScenID == str[i].SCENARIOID)
+		{
+			retString += ']},{"QUESTIONID": "' + str[i].QUESTIONID + '",';
+			retString += '"PROMPT": "' + str[i].PROMPT + '",';
+			retString += '"ANSWERS": [{"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"NUMRESPONSES": "' + str[i].NUMRESPONCES + '"}';
+
+			currQuestionID = str[i].QUESTIONID;
+		}
+		else
+		{
+			if(i != 0)
+			{
+				retString += '},';
+			}
+
+			retString += '{"SCENARIOID": "' + str[i].SCENARIOID + '",';
+			retString += '"TITLE": "' + str[i].TITLE + '",';
+			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID + '",';
+			retString += '"PROMPT": "' + str[i].PROMPT + '",';
+			retString += '"ANSWERS": [{"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"ANSWER": "' + str[i].ANSWER + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"NUMRESPONSES": "' + str[i].NUMRESPONCES + '"}';
+
+			currScenID = str[i].SCENARIOID;
+			currQuestionID = str[i].QUESTIONID;
+
+			//add new scenario
+		}
+	}
+
 	retString += ']}]}]}';
 
 	callback(retString, null);

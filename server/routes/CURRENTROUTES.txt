@@ -27,3 +27,6 @@ TODO:
 	- updateGroup
 	- finish formatting groupexceldata
 	- final checks for all methods
+
+	- Format list
+		- groupresponses
