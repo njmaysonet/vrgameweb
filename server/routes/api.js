@@ -292,7 +292,7 @@ router.post('/insertUser', function(req, res){
 
 passport.serializeUser(function(user,done){
 		console.log(user + ' ' + JSON.stringify(user));
-        done(null, user.id);
+        done(null, user.USERID);
     });
 
 passport.deserializeUser(function(id,done){
@@ -309,7 +309,7 @@ passport.use(
 		passReqToCallback : false
 	},
 	function(username, password, done){
-		console.log("Entered signup.");
+		console.log("Processing signup...");
 
 		dbConn.queryDBEmpty(mysql.format("SELECT * FROM USERS WHERE USERNAME = ?", username), function(rows,err){
 			if(err){
@@ -319,16 +319,11 @@ passport.use(
 			if(rows.length > 0){
 				return done(null, false, "{message: Username taken.}");
 			}else{
-				
 				var newUser ={
 					username: username,
 					password: password
 				};
-				
 				var inserts = [username, password];
-
-				
-
 				var insertQuery = "INSERT INTO USERS values (0,?,null,null,null,?,null,null,now(),0)";
 
 				dbConn.queryDB(mysql.format(insertQuery,inserts), function(rows,err)
@@ -357,24 +352,26 @@ passport.use(
 	new LocalStrategy({
 		usernameField : 'username',
 		passwordField : 'password',
-		passReqToCallback : true
+		passReqToCallback : false
 	},
 	function(username, password, done){
-		console.log("Entered.");
+		console.log("Processing login...");
 		dbConn.queryDBEmpty(mysql.format("SELECT * FROM USERS WHERE USERNAME = ?", username), function(rows,err){
 		if(err)
 			return done(err);
 		if(rows.length == 0)
 		{
-			return done(null, false, res.json("Error: User not found."));
+			console.log("Login: User not found.");
+			return done(null, false, "Error: User not found.");
 		}
 
-		if(password.localeCompare(rows[0].PASSWORD))
-			return done(null, false, res.json("Error: Incorrect password."));
-		
+		if(password.localeCompare(rows[0].PASSWORD) != 0){
+			console.log("Login: Wrong pass.");
+			return done(null, false, "Error: Incorrect password.");
+		}
 		return done(null, rows[0]);
-	});
-})
+		});
+	})
 );
 
 //Passport Routes
@@ -382,16 +379,13 @@ passport.use(
 router.post('/login',
 	passport.authenticate('local-login'),
 	function(req,res){
-		res.json({
-			id: req.user.USERID, 
-			username: req.user.USERNAME
-		})
+		res.send(req.user);
 	}
 );
 
 router.get('/logout', function(req,res){
 	req.logout();
-	res.message("Logged out.");
+	res.send("Logged out.");
 });
 
 router.post('/signup', 
