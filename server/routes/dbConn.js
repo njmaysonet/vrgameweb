@@ -479,7 +479,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		{
 			if(i != 0)
 			{
-				retString += '},';
+				retString += ']},';
 			}
 			
 
@@ -510,7 +510,7 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 	}
 
 	//finishes the JSON
-	retString += ']]}]}]}';
+	retString += ']}]}]}';
 
 	callback(retString, null);
 
