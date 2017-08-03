@@ -5,8 +5,8 @@ var pool = mysql.createPool({
 	//host: "10.171.204.166",
 	host: "localhost",
 	user: "root",
-	password: "Bulb$asaur5m",
-	database: "cvrfinal", 
+	password: "TRAAr5pjs65b8TXixNuo",
+	database: "cvrdb", 
 })
 
 //base query function

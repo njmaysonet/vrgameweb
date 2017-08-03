@@ -123,7 +123,7 @@ router.get('/userinfo', (req, res) => {
 						res.send('no users found');
 					}
 					else {
-						res.send('{ "players:"' + JSON.stringify(inVal) + "}");
+						res.send('{ "players":' + JSON.stringify(inVal) + "}");
 					}
 
 				})
