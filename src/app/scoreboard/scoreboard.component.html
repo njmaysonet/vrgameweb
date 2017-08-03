@@ -1,34 +1,3 @@
-<!--<div class="container">
-    <div fxLayout="column" fxAlign="none none">
-        <md-card>
-            <div md-card-avatar class="header-image"></div>
-            <md-card-title>User 1</md-card-title>
-            <md-card-subtitle>Beginner</md-card-subtitle>
-            <md-card-content>
-                <h3>Bio:</h3>
-                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                    nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
-                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                    Excepteur sint occaecat cupidatat non proident, 
-                    sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
-                <h3> Scenario 1 Progress: 50% </h3>
-                <md-progress-bar mode="determinate" [value]="50" [color] = "blue">
-                </md-progress-bar>
-                <h3> Scenario 2 Progress: 25% </h3>
-                <md-progress-bar mode="determinate" [value]="25" [color] = "blue">
-                </md-progress-bar>
-                <h3> Scenario 3 Progress: 10% </h3>
-                <md-progress-bar mode="determinate" [value]="10" [color] = "blue">
-                </md-progress-bar>
-            </md-card-content>
-            <md-card-actions>
-                <button md-button> SHARE </button>
-            </md-card-actions>
-        </md-card>
-    </div>
-</div> -->
 <div>
     <div fxLayout="column" fxAlign="none none" class="search-container">
         <md-card class="searchCard">
@@ -43,17 +12,17 @@
         </md-card>
     </div>
 </div>
-<div class="container" *ngIf="gotResult" >
+<div class="container" *ngFor="let searchResult of searchResult" >
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>
-            <md-card-title>User: {{searchResult.USERNAME}}</md-card-title>
-            <md-card-subtitle>Name: {{searchResult.FIRSTNAME}} {{player.LASTNAME}}</md-card-subtitle>
+            <md-card-title><b>{{searchResult.USERNAME}}</b></md-card-title>
+            <md-card-subtitle>Name: {{searchResult.FIRSTNAME}} {{searchResult.LASTNAME}}</md-card-subtitle>
             <md-card-content>
                 <h2 class="user-info">User Info:</h2>
-                <p>Date Joined: {{player.DATE_JOINED | date: "MM/dd/yy" }}</p>
-                <h3 class="scenario-info"> Scenarios: </h3>
-                <div *ngFor="let scenario of player.SCENARIOS">
+                <p>Date Joined: {{searchResult.DATE_JOINED | date: "MM/dd/yy" }}</p>
+                <h3 class="scenario-info"> Scenario History: </h3>
+                <div *ngFor="let scenario of searchResult.SCENARIOS">
                     <ul>
                     <li><b>Scenario:</b> {{scenario.TITLE}}</li>
                     <li><b>Time Played:</b> {{scenario.TIME_PLAYED}}</li>
@@ -71,7 +40,6 @@
                 </div>
             </md-card-content>
             <md-card-actions>
-                <button md-button> SHARE </button>
             </md-card-actions>
         </md-card>
     </div>
@@ -84,12 +52,13 @@
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>
-            <md-card-title>User: {{player.USERNAME}}</md-card-title>
+            <md-card-title><b>{{player.USERNAME}}</b></md-card-title>
             <md-card-subtitle>Name: {{player.FIRSTNAME}} {{player.LASTNAME}}</md-card-subtitle>
             <md-card-content>
                 <h2 class="user-info">User Info:</h2>
                 <p>Date Joined: {{player.DATE_JOINED | date: "MM/dd/yy" }}</p>
-                <h3 class="scenario-info"> Scenarios: </h3>
+                <p *ngIf="player.ADMIN_STATUS > 1"> Administrator</p>
+                <h3 class="scenario-info"> Scenario History: </h3>
                 <div *ngFor="let scenario of player.SCENARIOS">
                     <ul>
                     <li><b>Scenario:</b> {{scenario.TITLE}}</li>
@@ -99,7 +68,7 @@
                         <ul>
                         <li>Question: {{question.PROMPT}}</li>
                             <ul>
-                            <li>Answer: {{question.ANSWER}} ({{question.SCORE}})</li>
+                            <li>Answer: {{question.ANSWER}} ({{question.SCORE}} points.)</li>
                             <li>Reasoning: {{question.REASONING}}</li>
                             </ul>
                         </ul>
@@ -108,7 +77,6 @@
                 </div>
             </md-card-content>
             <md-card-actions>
-                <button md-button> SHARE </button>
             </md-card-actions>
         </md-card>
     </div>

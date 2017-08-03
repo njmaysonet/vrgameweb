@@ -454,6 +454,8 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 				retString += ',{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
 				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"SCORE": "' + str[i].SCORE + '",';
+				retString += '"REASONING": "' + str[i].REASONING + '",';
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 			}
@@ -468,6 +470,8 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 				retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 				retString += '"PROMPT": "' + str[i].PROMPT + '",';
 				retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+				retString += '"SCORE": "' + str[i].SCORE + '",';
+				retString += '"REASONING": "' + str[i].REASONING + '",';
 				retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 
 				currScenID = str[i].SCENARIOID;
@@ -479,11 +483,14 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 		{
 			if(i != 0)
 			{
-				retString += ']}]},';
+				 retString += ']}]},';
 			}
 			
 
 			retString += '{"USERID": "' + str[i].USERID + '",';
+			retString += '"USERNAME": "' + str[i].USERNAME + '",';
+			retString += '"FIRSTNAME": "' + str[i].FIRSTNAME + '",';
+			retString += '"LASTNAME": "' + str[i].LASTNAME + '",';
 			retString += '"DATE_JOINED": "' + str[i].DATE_JOINED + '",';
 			retString += '"PROFILE_PIC": "' + str[i].PROFILE_PIC + '",';
 			retString += '"EMAIL_ADDR": "' + str[i].EMAIL_ADDR + '",';
@@ -496,6 +503,8 @@ exports.formatUserJSON = function formatUserJSON(str, callback)
 			retString += '"QUESTIONS": [{"QUESTIONID": "' + str[i].QUESTIONID  + '",';
 			retString += '"PROMPT": "' + str[i].PROMPT + '",';
 			retString += '"ANSWERID": "' + str[i].ANSWERID + '",';
+			retString += '"SCORE": "' + str[i].SCORE + '",';
+			retString += '"REASONING": "' + str[i].REASONING + '",';
 			retString += '"ANSWER": "' + str[i].ANSWER + '"}';
 			
 			//sets current data

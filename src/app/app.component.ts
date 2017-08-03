@@ -61,4 +61,17 @@ export class AppComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/home']);
   }
+
+  profileRedirect()
+  {
+    this.router.navigate(['/profile']);
+  }
+
+  overviewRedirect(){
+    this.router.navigate(['/overview']);
+  }
+
+  groupsRedirect(){
+    this.router.navigate(['/groups']);
+  }
 }

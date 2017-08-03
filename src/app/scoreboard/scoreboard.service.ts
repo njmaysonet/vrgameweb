@@ -26,7 +26,8 @@ export class ScoreboardService{
 
         return this.http
             .get(searchURL)
-            .map(response => response.json().players);
+            .map(response => response.json().players)
+            .catch(this.handleError);
 
     }
 

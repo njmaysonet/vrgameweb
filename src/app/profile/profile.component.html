@@ -1,0 +1,36 @@
+<div class="featured" style="background-color: #607D8B">
+    <h1 class="text-primary-color list-title"> Your Profile </h1>
+</div>
+<div class="container" *ngFor="let user of user">
+    <div fxLayout="column" fxAlign="none none">
+        <md-card>
+            <div md-card-avatar class="header-image"></div>
+            <md-card-title><b>{{user.USERNAME}}</b></md-card-title>
+            <md-card-subtitle>Name: {{user.FIRSTNAME}} {{user.LASTNAME}}</md-card-subtitle>
+            <md-card-content>
+                <h2 class="user-info">User Info:</h2>
+                <p>Date Joined: {{user.DATE_JOINED | date: "MM/dd/yy" }}</p>
+                <p *ngIf="user.ADMIN_STATUS > 1"> Administrator</p>
+                <h3 class="scenario-info"> Scenario History: </h3>
+                <div *ngFor="let scenario of user.SCENARIOS">
+                    <ul>
+                    <li><b>Scenario:</b> {{scenario.TITLE}}</li>
+                    <li><b>Time Played:</b> {{scenario.TIME_PLAYED}}</li>
+                    <li><b>Date Completed:</b> {{scenario.TIME_COMPLETE | date: "MM/dd/yy"}}</li>
+                    <div *ngFor="let question of scenario.QUESTIONS">
+                        <ul>
+                        <li>Question: {{question.PROMPT}}</li>
+                            <ul>
+                            <li>Answer: {{question.ANSWER}} ({{question.SCORE}} points.)</li>
+                            <li>Reasoning: {{question.REASONING}}</li>
+                            </ul>
+                        </ul>
+                    </div>
+                    </ul>
+                </div>
+            </md-card-content>
+            <md-card-actions>
+            </md-card-actions>
+        </md-card>
+    </div>
+</div>

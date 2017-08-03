@@ -12,6 +12,7 @@
     font-size: 1.2em;
     max-height: 180px;
     max-width: 500px;
+    min-width: 500px;
 }
 .container{
     padding: 0;

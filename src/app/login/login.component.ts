@@ -16,6 +16,7 @@ export class LoginComponent{
     private loggedIn : Boolean;
     submitted = false;
     user : UserLogin = new UserLogin();
+    signedup = false;
 
     constructor(private authService: AuthService, 
                 private router: Router){};
@@ -32,5 +33,18 @@ export class LoginComponent{
                 this.router.navigate(['/login']);
             }
         })
+    }
+
+    signup(){
+        this.authService.signup(this.user.username, this.user.password)
+            .subscribe(res => {
+                if(res == true){
+                    console.log("Signed Up!");
+                    this.signedup = true;
+                } else {
+                    console.log("Sign up failed!");
+                    
+                }
+            })
     }
 }
