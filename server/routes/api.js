@@ -39,11 +39,7 @@ router.get('/user', (req, res) => {
 	var userid = req.query.userid;
 
 	//check to see if params are there
-<<<<<<< HEAD
-	if(userid == undefined)
-=======
 	if(userid == undefined && username == undefined)
->>>>>>> andrew_db_changes
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
@@ -66,8 +62,6 @@ router.get('/user', (req, res) => {
 	}
 });
 
-<<<<<<< HEAD
-=======
 //gets userid for the game. can check via email or username
 router.get('/gameuser', (req, res) =>{
 
@@ -99,7 +93,6 @@ router.get('/gameuser', (req, res) =>{
 });
 
 
->>>>>>> andrew_db_changes
 //returns all relevant user info where userid = id
 router.get('/userinfo', (req, res) => {
 	
@@ -155,51 +148,25 @@ router.get('/userinfo', (req, res) => {
 //http://localhost:3000/api/multiuser?userid=["1","4","8"]
 router.get('/multiuser', (req, res) => {
 
-<<<<<<< HEAD
-	if(req.query.userid == undefined)
-=======
 	var inQuery = 'SELECT * FROM USERS WHERE';
 	var arr = [];
 
 	//verifies that it was sent data
 	if(req.query.userid == undefined && req.query.username)
->>>>>>> andrew_db_changes
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else if(req.query.userid == undefined)
 	{
-<<<<<<< HEAD
-		var inQuery = 'SELECT * FROM USERS WHERE USERID = ';
-		var arr = JSON.parse(req.query.userid);
-=======
 		arr = JSON.parse(req.query.username);
 
 		inQuery += ' USERNAME = ?';
->>>>>>> andrew_db_changes
 
 		if(arr.length > 1)
 		{
 			var i = 0;
 			for(i = 0; i < arr.length; i++)
 			{
-<<<<<<< HEAD
-				inQuery += arr[i];
-				if(i+1 < arr.length)
-				{
-					inQuery += ' OR USERID = ';
-				}
-			}
-		}
-		else if(arr.length == 1)
-		{
-			inQuery = 'SELECT * FROM USERS WHERE USERID = ';
-			inQuery = mysql.format(inQuery, arr[0]);
-		}
-		else
-		{
-			res.send('ERROR: NO USERS SELECTED');
-=======
 				if(i < arr.length)
 				{
 					inQuery += ' OR USERNAME = ?';
@@ -224,7 +191,6 @@ router.get('/multiuser', (req, res) => {
 					inQuery += ' OR USERID = ?';
 				}
 			}
->>>>>>> andrew_db_changes
 		}
 		
 	}
@@ -333,10 +299,6 @@ router.get('/scenarioresponses', (req, res) => {
 			}
 			else {
 				//format accordingly
-<<<<<<< HEAD
-				res.send(val);
-			}
-=======
 				res.send(val);
 			}
 		});
@@ -425,13 +387,10 @@ router.get('/groupscores', (req, res) => {
 				//format accordingly
 				res.send('{ "players:"' + JSON.stringify(val) + "}");
 			}
->>>>>>> andrew_db_changes
 		});
 	}
 });
 
-<<<<<<< HEAD
-=======
 router.get('/groupexceldata', (req, res) => {
 	var groups = [], scenarios = [], inserts = [];
 	var inQuery = '';
@@ -582,7 +541,6 @@ router.get('/groupexceldata', (req, res) => {
 })
 
 
->>>>>>> andrew_db_changes
 //inserts culture into the db
 //https://stackoverflow.com/questions/14551194/how-are-parameters-sent-in-an-http-post-request if we have issues getting data
 //using postman for now
@@ -616,23 +574,15 @@ router.post('/insertUser', function(req, res){
 
 	//get inserts
 	var inserts = [req.body.USERNAME, req.body.FIRSTNAME, req.body.LASTNAME, req.body.EMAIL, 
-<<<<<<< HEAD
-				   req.body.PASSWORD, req.body.PROFILE_PIC, req.body.BIRTHDAY, '2017-07-19', '0'];
-=======
 				   req.body.PASSWORD, req.body.PROFILE_PIC, req.body.BIRTHDAY];
->>>>>>> andrew_db_changes
 
 	if(inserts[0] == undefined || inserts[1] == undefined || inserts[2] == undefined || inserts[3] == undefined || inserts[4] == undefined || 
-	   inserts[5] == undefined || inserts[6] == undefined || inserts[7] == undefined || inserts[8] == undefined)
+	   inserts[5] == undefined || inserts[6] == undefined )
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
-<<<<<<< HEAD
-		//get query and combine the two
-		var inQuery = "INSERT INTO USERS VALUES('0',?,?,?,?,?,?,?,?,?);";
-=======
 		var i = 0; 
 		for(i = 0; i < inserts.length - 2; i++)
 		{
@@ -644,20 +594,10 @@ router.post('/insertUser', function(req, res){
 
 		//get query and combine the two
 		var inQuery = "INSERT INTO USERS VALUES('0',?,?,?,?,?,?,?,NOW(),'0')";
->>>>>>> andrew_db_changes
 
 		//insert the values into the db. 
 		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 
-<<<<<<< HEAD
-			if(err)
-			{
-				res.send(val);
-			}
-			else
-			{
-				res.send("successfully inserted user into db");
-=======
 			if(err) {
 				res.send(val);
 			}
@@ -748,7 +688,6 @@ router.post('/playerdata', (req, res) => {
 			else {
 				//format accordingly
 				res.send('successfully did the thing');
->>>>>>> andrew_db_changes
 			}
 		});
 	}
@@ -761,7 +700,6 @@ passport.serializeUser(function(user,done){
         done(null, user.USERID);
     });
 
-<<<<<<< HEAD
 passport.deserializeUser(function(id,done){
     dbConn.queryDB(mysql.format("SELECT * FROM USERS WHERE USERID = ?", id), function(rows,err){
         done(err,rows[0].USERID);
@@ -840,7 +778,7 @@ passport.use(
 		});
 	})
 );
-=======
+/*
 	//query to get the cultureid using the location from the database
 	dbConn.queryDB(mysql.format(inQuery, inData.LOCATION), function(val, err){
 		
@@ -852,7 +790,7 @@ passport.use(
 			});
 		}
 	});
-});
+});*/
 
 //creates a group
 router.post('/creategroup', (req, res) => {
@@ -1000,11 +938,9 @@ router.post('/addmembers', (req, res) => {
 		
 	}
 });
->>>>>>> andrew_db_changes
 
 //Passport Routes
 
-<<<<<<< HEAD
 router.post('/loginUser',
 	passport.authenticate('local-login'),
 	function(req,res){
@@ -1024,7 +960,8 @@ router.post('/signupUser',
 		res.send("Account successfully created.");
 	}
 );
-=======
+
+/*
 	var members;
 	//get group to insert into
 	var groupid = req.body.groupid;
@@ -1062,7 +999,7 @@ router.post('/signupUser',
 			}	
 		});
 	}
-});
+});*/
 
 //removes all members from a group. 
 router.post('/removeallmembers', (req, res) => {
@@ -1102,7 +1039,6 @@ process.on('warning', (warning) => {
 });
 */
 
->>>>>>> andrew_db_changes
 
 module.exports = router;
 
