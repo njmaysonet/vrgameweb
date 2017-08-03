@@ -5,6 +5,7 @@ import {OnInit} from '@angular/core';
 
 import {ScoreboardService} from './scoreboard.service';
 import {Player} from '../models/player';
+import {User} from '../models/user';
 
 @Component({
     selector: 'scoreboard-component',
@@ -15,16 +16,18 @@ import {Player} from '../models/player';
 
 export class ScoreboardComponent implements OnInit {
     errorMessage: string;
-    players: Player[];
-    searchResults: Player[] = new Array<Player>();
+    players: User[];
+    searchResult: User = null;
     mode = 'Observable';
     isChecked = true;
     searchTerm: string = null;
+    gotResult = false;
 
     constructor (private scoreboardService: ScoreboardService){}
 
     ngOnInit(){
         this.getPlayers();
+        this.gotResult = false;
     }
 
     getPlayers(){
@@ -42,7 +45,8 @@ export class ScoreboardComponent implements OnInit {
         this.scoreboardService.searchPlayers(searchTerm)
             .subscribe(
                 player => {
-                    this.searchResults[0] = player;
+                    this.searchResult = player;
+                    this.gotResult = true;
                 }
             )
     }

@@ -15,13 +15,13 @@ export class ScoreboardService{
 
     constructor (private http: Http) {}
 
-    getPlayers(): Observable<Player[]> {
+    getPlayers(): Observable<User[]> {
         return this.http.get(this.multiURL)
             .map((res: Response) => res.json().players)
             .catch(this.handleError);
     }
 
-    searchPlayers(term: string): Observable<Player>{
+    searchPlayers(term: string): Observable<User>{
         let searchURL = 'http://localhost:3000/api/userinfo?username='+term;
 
         return this.http

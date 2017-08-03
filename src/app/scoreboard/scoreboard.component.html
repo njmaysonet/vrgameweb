@@ -43,12 +43,12 @@
         </md-card>
     </div>
 </div>
-<div class="container" *ngFor="let player of searchResults">
+<div class="container" *ngIf="gotResult" >
     <div fxLayout="column" fxAlign="none none">
         <md-card>
             <div md-card-avatar class="header-image"></div>
-            <md-card-title>User: {{player.USERNAME}}</md-card-title>
-            <md-card-subtitle>Name: {{player.FIRSTNAME}} {{player.LASTNAME}}</md-card-subtitle>
+            <md-card-title>User: {{searchResult.USERNAME}}</md-card-title>
+            <md-card-subtitle>Name: {{searchResult.FIRSTNAME}} {{player.LASTNAME}}</md-card-subtitle>
             <md-card-content>
                 <h2 class="user-info">User Info:</h2>
                 <p>Date Joined: {{player.DATE_JOINED | date: "MM/dd/yy" }}</p>
