@@ -17,7 +17,7 @@ import {User} from '../models/user';
 export class ScoreboardComponent implements OnInit {
     errorMessage: string;
     players: User[];
-    searchResult: User = null;
+    searchResult: User;
     mode = 'Observable';
     isChecked = true;
     searchTerm: string = null;
