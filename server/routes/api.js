@@ -5,6 +5,9 @@ var dbConn = require('./dbConn');
 var mysql = require('mysql');
 var http = require('http').Server(express);
 var io = require('socket.io')(http);
+var exceljs = require('exceljs');
+var tempy = require('tempy');
+var excelExports = require('./excelExport');
 var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
@@ -34,9 +37,14 @@ router.get('/data', (req,res) => {
 });
 
 //gets all user info where userid = id;
+
 router.get('/user', (req, res) => {
 	
 	var userid = req.query.userid;
+	var username = req.query.username;
+	var inQuery = 'SELECT * FROM USERS WHERE';
+	var inserts = [];
+
 
 	//check to see if params are there
 	if(userid == undefined && username == undefined)
@@ -46,10 +54,20 @@ router.get('/user', (req, res) => {
 	else
 	{
 		//base query 
-		var inQuery = "SELECT * FROM USERS WHERE USERID = ?";
+		if(userid == undefined)
+		{
+			inserts.push(username);
+			inQuery += ' USERNAME = ?';
+		}
+		else
+		{
+			inserts.push(userid);
+			inQuery += ' USERID = ?';
+		}
+		
 
 		//searches db for user with userid = id. 
-		dbConn.queryDB(mysql.format(inQuery, userid), function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, inserts), function(val, err){
 
 			//if none was found return err message, otherwise JSONify data and return
 			if(err) {
@@ -152,7 +170,7 @@ router.get('/multiuser', (req, res) => {
 	var arr = [];
 
 	//verifies that it was sent data
-	if(req.query.userid == undefined && req.query.username)
+	if(req.query.userid == undefined && req.query.username == undefined)
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
@@ -195,7 +213,7 @@ router.get('/multiuser', (req, res) => {
 		
 	}
 
-		dbConn.queryDB(inQuery, function(val, err){
+		dbConn.queryDB(mysql.format(inQuery, arr), function(val, err){
 			if(err) {
 				res.send(val);
 			}
@@ -259,47 +277,61 @@ router.get('/scenario', (req, res) => {
 	}
 });
 
+//gets the most recent scores of all users who played a scenario
 router.get('/scenarioscores', (req, res) => {
 
+	//gets the scenarioid that was passed
 	var scenarioid = req.query.scenid;
 
+	//verifies that it was passes the parameters
 	if(scenarioid == undefined)
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
-		var inQuery = 'SELECT USERID, USERNAME, SUM(SCORE) AS TOTAL_SCORE FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS WHERE SCENARIOID = ? GROUP BY USERID';
+		/*gross query; joins Users, User_Scenario_Info, User_Responses, Questions, and Answers to sum up the Score field in Answers for each answer the User selected in U_R.
+		/renames the sum to Total_Score. Most recent limits the results to only their most recent playthroughs. 
+		*/
+		var inQuery = 'SELECT USERID, USERNAME, SUM(SCORE) AS TOTAL_SCORE FROM USERS NATURAL JOIN USER_SCENARIO_INFO NATURAL JOIN USER_RESPONSES NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS WHERE SCENARIOID = ? AND MOST_RECENT = 1 GROUP BY USERID';
+		
+		//queries the database
 		dbConn.queryDB(mysql.format(inQuery, scenarioid), function(val, err){
 			if(err) {
 				res.send(val);
 			}
 			else {
 				//format accordingly
-				res.send(val);
+				res.send('{ "players:"' + JSON.stringify(val) + "}");
 			}
 		});
 	}
 });
 
+//gets the number of times each answer was selected for each question in a given scenario
 router.get('/scenarioresponses', (req, res) => {
 
+	//gets the scenario parameter
 	var scenarioid = req.query.scenid;
 
+	//makes sure that a parameter was actually set
 	if(scenarioid == undefined)
 	{
 		res.send('ERROR: MISSING PARAMETERS');
 	}
 	else
 	{
-		var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO WHERE SCENARIOID = ? GROUP BY ANSWERID';
+		//query; joins the tables to count the number of users that selected a specific answer. Only gets the most recent responses
+		var inQuery = 'SELECT SCENARIOID, QUESTIONID, PROMPT, ANSWERID, ANSWER, COUNT(USERID) AS NUMRESPONCES FROM USERS NATURAL JOIN SCENARIOS NATURAL JOIN QUESTIONS NATURAL JOIN ANSWERS NATURAL JOIN USER_RESPONSES NATURAL JOIN USER_SCENARIO_INFO WHERE SCENARIOID = ? AND MOST_RECENT = 1 GROUP BY ANSWERID';
+		
+		//queries db
 		dbConn.queryDB(mysql.format(inQuery, scenarioid), function(val, err){
 			if(err) {
 				res.send(val);
 			}
 			else {
 				//format accordingly
-				res.send(val);
+				res.send(JSON.stringify(val));
 			}
 		});
 	}
@@ -778,7 +810,15 @@ passport.use(
 		});
 	})
 );
-/*
+
+//inserts a scenario into the database given a json file
+router.get('/insertscenario', (req, res) => {
+
+	var inData = testjson;
+
+	//first need to get the cultureid
+	var inQuery = 'SELECT CULTUREID FROM CULTURES WHERE LOCATION = ?';
+
 	//query to get the cultureid using the location from the database
 	dbConn.queryDB(mysql.format(inQuery, inData.LOCATION), function(val, err){
 		
@@ -790,7 +830,7 @@ passport.use(
 			});
 		}
 	});
-});*/
+});
 
 //creates a group
 router.post('/creategroup', (req, res) => {
@@ -961,7 +1001,10 @@ router.post('/signupUser',
 	}
 );
 
-/*
+
+//removes members from a group. can remove however many id's are passed to it
+router.post('/removemembers', (req, res) => {
+
 	var members;
 	//get group to insert into
 	var groupid = req.body.groupid;
@@ -999,7 +1042,7 @@ router.post('/signupUser',
 			}	
 		});
 	}
-});*/
+});
 
 //removes all members from a group. 
 router.post('/removeallmembers', (req, res) => {
