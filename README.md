@@ -1,6 +1,6 @@
 # VR Game Website
 
-This is a test build of a Senior Design Project for a VR Game.
+This is a test build of a Senior Design Project for a VR Game. This copy is for my personal records and to demonstrate some of the type of code that I developed.
 
 ## Development server
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
